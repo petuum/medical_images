@@ -51,9 +51,6 @@ def get_study(img_paths, transforms):
     for i, img_path in enumerate(img_paths):
         image = imageio.imread(img_path, as_gray=True)
         j = rand_idx[i] if rand else i
-        print(image)
-        print(image.shape)
-        print(image.dtype)
         image_tensor[j, :, :] = transforms(image)
     return image_tensor
 
@@ -97,10 +94,8 @@ class MIMICCXR_Dataset:
 
     def __getitem__(self, index):
         index = int(index)
-        print(index)
         def get_entries(index):
             df = self.csv.iloc[index]
-            print(df)
             paths = [x for x in df[0].split(',')]
             label = df[1:].tolist()
             return paths, label
