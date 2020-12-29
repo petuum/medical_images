@@ -20,8 +20,8 @@ install:
 - pip install pytest==5.1.3
 - pip install coverage codecov
 script:
-- pylint med/ tests/
-- flake8 med/ tests/
+- pylint petuum_med/ tests/
+- flake8 petuum_med/ tests/
 - coverage run -m pytest
 
 after_success:
