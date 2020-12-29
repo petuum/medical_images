@@ -19,44 +19,45 @@ Model classes for medical report generation.
 from typing import Optional
 
 import torch
-
+from texar.torch import ModuleBase
 from texar.torch.data import Vocab
 from texar.torch.modules import (
-    WordEmbedder, BasicRNNDecoder, EncoderBase,
+    WordEmbedder,
+    BasicRNNDecoder,
 )
 from texar.torch.utils.types import MaybeList, MaybeTuple
 
 
-class WordLSTM(EncoderBase):
+class WordLSTM(ModuleBase):
     r""" The Word LSTM decoding layer.
 
     Args:
-        word_embedding_size (int): Dimension of the word embedding.
-        vocab_size (int): Vocabulary size.
+        hparams: Default hyper parameters for the model. See
+          :func:`default_hparams` for more details.
 
     The output of this decoder is the same as
     :class:`~texar.torch.modules.BasicRNNDecoder`, which is the output shape
     of each time step.
     """
 
-    def __init__(self, word_embedding_size: int, vocab_size: int):
-        super().__init__()
+    def __init__(self, hparams=None):
+        super().__init__(hparams=hparams)
 
         # Set up the Word Embedding layer.
         self.embedding = WordEmbedder(
-            vocab_size=self.output_size,
-            hparams={'dim': self.hidden_size}
+            vocab_size=self.hparams.vocab_size,
+            hparams={'dim': [self.hparams.word_embedding_size]}
         )
 
         # Setup the LSTM layer -- batch_first = true.
         self.decoder = BasicRNNDecoder(
-            input_size=word_embedding_size,
+            input_size=self.hparams.word_embedding_size,
             token_embedder=self.embedding,
-            vocab_size=vocab_size,
+            vocab_size=self.hparams.vocab_size,
             hparams={
                 'rnn_cell': {
                     'type': 'LSTMCell',
-                    'kwargs': {'num_units': self.hidden_size}
+                    'kwargs': {'num_units': self.hparams.lstm_cell_hidden}
                 }}
         )
 
@@ -97,7 +98,8 @@ class WordLSTM(EncoderBase):
             # Create helper.
             helper = self.decoder.create_helper(
                 decoding_strategy='infer_greedy',
-                start_tokens=vocab.bos_token_id * self.batch_size,
+                start_tokens=torch.Tensor(
+                    [vocab.bos_token_id] * self.hparams.batch_size),
                 end_token=vocab.eos_token_id, embedding=self.embedding)
 
             # Inference sample.
@@ -108,7 +110,19 @@ class WordLSTM(EncoderBase):
 
         return output, final_state, sequence_lengths
 
+    @staticmethod
+    def default_hparams():
+        r"""Returns a dictionary of hyperparameters with default values.
+        """
+        hparams = {
+            "word_embedding_size": int,
+            "vocab_size": int,
+            "lstm_cell_hidden": int,
+            "batch_size": int,
+        }
+        return hparams
+
     @property
     def output_size(self):
         """Output size of one step."""
-        return self.decoder.output_size
+        return self._hparams.lstm_cell_hidden
