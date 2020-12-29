@@ -22,7 +22,23 @@ install:
 script:
   - pylint petuum_med/ tests/
   - flake8 petuum_med/ tests/
+  - coverage run -m pytest
 
 after_success:
   - codecov
 
+jobs:
+  include:
+    - stage: docs
+      python: '3.7'
+      install:
+        - pip install --upgrade pip
+        - pip install --progress-bar off -r requirements.txt
+        - pip install --progress-bar off .[extras]
+        - pip install --progress-bar off -r docs/requirements.txt
+      script:
+        - cd docs
+        - sphinx-build -W -b html -d _build/doctrees . _build/html
+        - sphinx-build -W -b spelling -d _build/doctrees . _build/spelling
+notifications:
+  email: false
