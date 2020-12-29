@@ -20,8 +20,8 @@ install:
 - pip install pytest==5.1.3
 - pip install coverage codecov
 script:
-- pylint forte/ examples/ ft/ scripts/ tests/
-- flake8 forte/ examples/ ft/ scripts/ tests/
+- pylint med/ tests/
+- flake8 med/ tests/
 - coverage run -m pytest
 
 after_success:
