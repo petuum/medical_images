@@ -1,22 +1,13 @@
 import numpy as np
-import os,sys,os.path
 import pandas as pd
 import torch
 import torch.utils.data
-from pathlib import Path
 import torchvision.transforms as tfms
 import imageio
-from PIL import Image
 from texar.torch.hyperparams import HParams
 from texar.torch.data.data import DatasetBase
 from texar.torch.data.data import DataSource
 
-
-def get_image(img_path, transforms):
-    image = imageio.imread(img_path, as_gray=True)
-    # image = imageio.imread(img_path, as_gray=False, pilmode="RGB")
-    image_tensor = transforms(image)
-    return image_tensor
 
 class MIMICCXR_DataSource(DataSource):
     """
@@ -74,6 +65,14 @@ class MIMICCXR_DataSource(DataSource):
             image = imageio.imread(img_path, as_gray=True)
             ret.append(self.transforms(image))
         return ret
+
+    def get_image(self, img_path, transforms):
+        if self._hparams["input_channel"] == "GRAY":
+            image = imageio.imread(img_path, as_gray=True)
+        else:
+            image = imageio.imread(img_path, as_gray=False, pilmode="RGB")
+        image_tensor = transforms(image)
+        return image_tensor
 
     @staticmethod
     def default_hparams():
