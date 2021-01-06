@@ -127,3 +127,10 @@ dmypy.json
 
 # Pyre type checker
 .pyre/
+
+#experiments
+exp_default/
+output_default/
+tbx_folder/
+*.csv
+*.sh
