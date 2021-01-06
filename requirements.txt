@@ -1,0 +1,2 @@
+torch >= 1.5.0
+texar-pytorch >= 0.1.1
