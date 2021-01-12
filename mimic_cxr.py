@@ -39,7 +39,7 @@ class MIMICCXR_DataSource(DataSource):
 
         if self.mode == "PER_IMAGE":
             img_paths, label = get_entries(index)
-            image_tensor = get_image(img_paths[0], self.transforms)
+            image_tensor = self.get_image(img_paths[0], self.transforms)
             target_tensor = torch.FloatTensor(label)
             channels = 3
         else:  # PER_STUDY
@@ -84,7 +84,8 @@ class MIMICCXR_DataSource(DataSource):
             "transforms": None,
             "processed_csv": None,
             "mode": None,
-            "batch_size": 1
+            "batch_size": 1,
+            "input_channel": "RGB"
         })
         return hparams
 

@@ -50,6 +50,7 @@ class MIMICCXR_Dataset(DatasetBase):
             "mode": None,
             "batch_size": 1,
             "shuffle": False,
-            "shuffle_buffer_size": 32
+            "shuffle_buffer_size": 32,
+            "input_channel": "RGB"
         })
         return hparams

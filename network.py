@@ -32,7 +32,7 @@ class CustomBlock(nn.Module):
 
 class CNNnetwork(nn.Module):
 
-    def __init__(self, out_dim=13, mode="PER_IMAGE", input_channel="GRAY"):
+    def __init__(self, out_dim=13, mode="PER_IMAGE", input_channel="RGB"):
         super().__init__()
         self.mode = mode
         if input_channel == "RGB":
@@ -66,6 +66,7 @@ class CNNnetwork(nn.Module):
         return x
 
 class ClassifierWrapper(CNNnetwork):
+
     def forward(self, batch):
         preds = super().forward(x=batch.image, num_chs=batch.channels)
         self.loss = nn.BCEWithLogitsLoss(reduction='none')

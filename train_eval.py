@@ -4,7 +4,7 @@ from network import ClassifierWrapper
 from texar.torch.run import *
 
 from mimic_dataset import MIMICCXR_Dataset
-from config_mimic import dataset as hparams_dataset
+from config_mimic_test import dataset as hparams_dataset
 from pathlib import Path
 
 
@@ -63,26 +63,19 @@ executor = Executor(
     log_every=cond.iteration(args.display_steps),
     log_destination=[sys.stdout, output_dir / "log.txt"],
     validate_every=cond.epoch(1),
-    valid_metrics=[metric.Accuracy[float](pred_name="preds", label_name="target"),
-                    metric.Precision[float](pred_name="preds", label_name="target",mode='macro'),
-                   metric.Recall[float](pred_name="preds", label_name="target",mode='macro'),
-                   metric.F1[float](pred_name="preds", label_name="target",mode='macro'),
-                   ("loss", metric.Average())],
+    valid_metrics=[("loss", metric.Average())],
     plateau_condition=[
         cond.consecutive(cond.validation(better=False), 2)],
     action_on_plateau=[
-        action.early_stop(patience=2),
+        action.early_stop(patience=10),
         action.reset_params(),
         action.scale_lr(0.8)],
     stop_training_on=cond.iteration(args.max_train_steps),
     test_mode='eval',
     tbx_logging_dir='tbx_folder',
-    test_metrics=[metric.Accuracy[float](pred_name="preds", label_name="target"),
-                    metric.Precision[float](pred_name="preds", label_name="target",mode='macro'),
-                    metric.Recall[float](pred_name="preds", label_name="target",mode='macro'),
-                    metric.F1[float](pred_name="preds", label_name="target",mode='macro'),
-                   ("loss", metric.Average())]
+    test_metrics=[("loss", metric.Average())]
 )
 
-executor.load(path='exp_default/1609838409.8113663.pt')
+# executor.load(path='exp_default/1610142693.9463053.pt')
+executor.train()
 executor.test()

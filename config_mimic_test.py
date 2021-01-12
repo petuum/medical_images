@@ -44,7 +44,8 @@ dataset = {
                 "lazy_strategy": 'all',
                 "cache_strategy": 'none',
                 "shuffle": True,
-                "shuffle_buffer_size": 32
+                "shuffle_buffer_size": 32,
+                "input_channel": "RGB"
 
             },
             "val" : {
@@ -69,7 +70,8 @@ dataset = {
                 "lazy_strategy": 'all',
                 "cache_strategy": 'none',
                 "shuffle": True,
-                "shuffle_buffer_size": 32
+                "shuffle_buffer_size": 32,
+                "input_channel": "RGB"
 
             },
             "test": {
@@ -94,6 +96,7 @@ dataset = {
                 "lazy_strategy": 'all',
                 "cache_strategy": 'none',
                 "shuffle": True,
-                "shuffle_buffer_size": 32
+                "shuffle_buffer_size": 32,
+                "input_channel": "RGB"
             }
         }
