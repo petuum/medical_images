@@ -13,6 +13,7 @@
 # limitations under the License.
 
 import unittest
+import torch
 from models.nlp_model import LstmSentence, LstmWord, CoAttention
 
 
@@ -33,12 +34,20 @@ class NLPModelTest(unittest.TestCase):
         """
         model = LstmWord()
         _input = model.init_hidden()
-        # _ouput = model(_input, train=False)
+        _ouput = model(_input, train=False)
 
     def test_coattn(self):
         r"""Test for CoAttention module initialization and forward
         """
         model = CoAttention()
+
+    def test_connection(self):
+        cv_model = None
+        lstm_word = LstmWord()
+        lstm_sentence = LstmSentence()
+        inp_image = torch.zeros(size=[1, 3, 256, 256])
+        feat, _ = cv_model(inp_image)
+
 
 
 if __name__ == '__main__':

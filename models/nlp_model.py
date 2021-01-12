@@ -235,8 +235,8 @@ class LstmSentence(ModuleBase):
         obtain the alpha (visual_alignments) beta (semantic_alignments)
         Args:
             v (torch.Tensor): Visual features
-            a (torch.Tensor): Average features
-            hidden ():
+            a (torch.Tensor): Semantic features
+            hidden (torch.Tensor): Hidden state
 
         Returns:
 
@@ -316,8 +316,6 @@ class LstmWord(ModuleBase):
     def __init__(self, hparams=None):
         super().__init__(hparams=hparams)
 
-        # initialise the variables
-
         self.hidden_size = self.hparams.hidden_size
         output_size = self.hparams.output_size
         self.seq_len = self.hparams.seq_len
@@ -326,8 +324,6 @@ class LstmWord(ModuleBase):
         # Embedding layer
         self.embedding = \
             WordEmbedder(vocab_size=output_size, hparams={'dim': self.hidden_size})
-
-        # LSTM layer -- batch_first = true
 
         enc_hparams = {
             'rnn_cell': {
@@ -400,7 +396,7 @@ class LstmWord(ModuleBase):
 
         """
         return {
-            "hidden_size": 512,
+            "hidden_size": 16,
             "output_size": 512,
             "seq_len": 30,
             "batch_size": 1
