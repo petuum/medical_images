@@ -81,7 +81,7 @@ class CoAttention(ModuleBase):
 
 
     def forward(self, v, a, hidden_state):
-        # TODO: Check meaing/shape of v, a, hidden_state. Rename v, a
+        # TODO: Fill in docstring: visual_alignment and semantic_alignment
         r"""
 
         Args:
@@ -89,12 +89,12 @@ class CoAttention(ModuleBase):
             visual_units]
             a (torch.Tensor): Dimension [Batch size, max_time_steps = N_a, hidden_state =
             semantic_units]
-            hidden_state ():
+            hidden_state (torch.Tensor): Hidden state for lstm
 
         Returns:
-            ctx (torch.Tensor):
+            ctx (torch.Tensor): Joint context vector
             visual_alignments (torch.Tensor):
-            senmantic_alignments (torch.Tensor):
+            semantic_alignments (torch.Tensor):
         """
         state_v = torch.rand(self.batch_size, self.num_visual)
 
@@ -128,7 +128,7 @@ class CoAttention(ModuleBase):
             'hidden_size': 512,
             'batch_size': 1,
             'num_units': 512,
-            'visual_units': 512,
+            'visual_units': 2048,
             'semantic_units': 512,
             'num_visual': 1,
             'num_semantic': 1,
@@ -228,15 +228,15 @@ class LstmSentence(ModuleBase):
         self.lstm = UnidirectionalRNNEncoder(input_size=input_size, hparams=hparams_rnn.todict())
 
     def forward(self, v, a, hidden):
-        # TODO: Check meaning/shape of v, a, hidden. Remane v, a
+        # TODO: Fill in return docstring
         r"""
         Return the visual_alignments, semantic_alignments for the loss function calculation
         Stack the visual_alignments, semantic_alignments at each time step of the sentence LSTM to
         obtain the alpha (visual_alignments) beta (semantic_alignments)
         Args:
-            v (torch.Tensor): Visual features
-            a (torch.Tensor): Semantic features
-            hidden (torch.Tensor): Hidden state
+            v (torch.Tensor): Visual features of image patches
+            a (torch.Tensor): Semantic features. Word embeddings of predicted disease tags
+            hidden (torch.Tensor): Previous hidden state in LSTM
 
         Returns:
 
@@ -244,15 +244,18 @@ class LstmSentence(ModuleBase):
         (h_0, c_0) = hidden
 
         inp_lstm, visual_alignments, semantic_alignments = self.co_attn(v, a, h_0)
+        # TODO: BUG HERE! inp_lstm needs to have size [batch, time, depth], got 2 dims only here
 
         output, hidden = self.lstm(
-            inp_lstm,
+            inp_lstm.view(1, 1, -1),
             initial_state=(h_0.view(self.batch_size, self.hidden_size),
                            c_0.view(self.batch_size, self.hidden_size)))
 
         return output, hidden, visual_alignments, semantic_alignments
 
     def init_hidden(self):
+        # TODO: self.seq_len can only be 1 here since h_0.view(self.batch_size, self.hidden_size)
+        #  Need to change either hidden init here or h_0.view/c_0.view above
         r"""Initialize hidden tensor
 
         Returns:
@@ -272,12 +275,12 @@ class LstmSentence(ModuleBase):
         return {
             "input_size": 512,
             "hidden_size": 512,
-            "num_units": 512,
-            "visual_units": 512,
+            "num_units": 121,
+            "visual_units": 2048,
             "semantic_units": 512,
-            "seq_len": 6,
-            "num_visual": 1,
-            "num_semantic": 1,
+            "seq_len": 1,
+            "num_visual": 2048,
+            "num_semantic": 512,
             "batch_size": 1
         }
 
@@ -342,16 +345,16 @@ class LstmWord(ModuleBase):
                                        vocab_size=output_size, hparams=hparams_rnn.todict())
 
     def forward(self, hidden, train, inp=None, sentence_len=None):
-        # TODO: Check meaning/shape of hidden
         """
 
         Args:
-            hidden ():
-            train ():
-            inp ():
-            sentence_len ():
+            hidden (torch.Tensor): Hidden state from LstmSentence
+            train (bool): If in training
+            inp (torch.Tensor): Groundtruth tokens in a sentence. Only used in training
+            sentence_len (int): Number of token in a sentence
 
         Returns:
+            output (torch.Tensor): Generated output
 
         """
 
@@ -396,7 +399,7 @@ class LstmWord(ModuleBase):
 
         """
         return {
-            "hidden_size": 16,
+            "hidden_size": 512,
             "output_size": 512,
             "seq_len": 30,
             "batch_size": 1

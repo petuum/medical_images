@@ -25,29 +25,66 @@ class NLPModelTest(unittest.TestCase):
     def test_lstm_sentence(self):
         r"""Test for LstmSentence module initialization and forward
         """
-        model = LstmSentence()
-        _input = model.init_hidden()
-        # _output = model(_input)
+        model = LstmSentence({
+            "input_size": 512,
+            "hidden_size": 512,
+            "num_units": 121,
+            "visual_units": 2048,
+            "semantic_units": 512,
+            "seq_len": 1,
+            "num_visual": 2048,
+            "num_semantic": 512,
+            "batch_size": 1
+        })
+
+        # v: [Batch_size, max_time_steps = N_v, hidden_state = visual_units]
+        # a: [Batch_size, max_time_steps = N_a, hidden_state = semantic_units]
+        input_v = torch.zeros(1, 121, 2048)
+        input_a = torch.zeros(1, 121, 512)
+        hidden = model.init_hidden()
+        output, hidden, visual_alignments, semantic_alignments = model(input_v, input_a, hidden)
+        assert output.size() == torch.Size([1, 1, 512])
+        assert hidden[0].size() == torch.Size([1, 512])
+        assert hidden[1].size() == torch.Size([1, 512])
+        assert visual_alignments.size() == torch.Size([1, 1, 121])
+        assert semantic_alignments.size() == torch.Size([1, 1, 121])
 
     def test_lstm_word(self):
         r"""Test for LstmWord module initialization and forward
         """
-        model = LstmWord()
-        _input = model.init_hidden()
+        model = LstmWord({
+            "hidden_size": 512,
+            "output_size": 512,
+            "seq_len": 1,
+            "batch_size": 1
+        })
+        _input = (torch.zeros(1, 512), torch.zeros(1, 512))
         _ouput = model(_input, train=False)
 
     def test_coattn(self):
         r"""Test for CoAttention module initialization and forward
         """
-        model = CoAttention()
+        model = CoAttention({
+            'hidden_size': 512,
+            'batch_size': 1,
+            'num_units': 121,
+            'visual_units': 2048,
+            'semantic_units': 512,
+            'num_visual': 2048,
+            'num_semantic': 512,
+        })
+        input_v = torch.zeros(1, 121, 2048)
+        input_a = torch.zeros(1, 121, 512)
+        hidden = torch.zeros(1, 1, 512)
+        ctx, visual_alignments, semantic_alignments = model(input_v, input_a, hidden)
+        assert ctx.size() == torch.Size([1, 512])
+        assert visual_alignments.size() == torch.Size([1, 1, 121])
+        assert semantic_alignments.size() == torch.Size([1, 1, 121])
 
     def test_connection(self):
-        cv_model = None
-        lstm_word = LstmWord()
-        lstm_sentence = LstmSentence()
-        inp_image = torch.zeros(size=[1, 3, 256, 256])
-        feat, _ = cv_model(inp_image)
-
+        r"""Test lstm module connection
+        """
+        pass
 
 
 if __name__ == '__main__':
