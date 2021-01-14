@@ -86,5 +86,6 @@ executor = Executor(
                    ("loss", metric.Average())]
 )
 
-executor.train()
+executor.load(path='./train_checkpoint.pt')
+# executor.train()
 executor.test()

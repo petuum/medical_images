@@ -1,7 +1,7 @@
 dataset = {
-            "imgpath" : "/media/files/datasets/physionet.org/files/mimic-cxr-jpg/2.0.0/files",
-            "csvpath" : "/media/files/datasets/physionet.org/files/mimic-cxr-jpg/2.0.0/mimic-cxr-2.0.0-chexpert.csv",
-            "metacsvpath" : "/media/files/datasets/physionet.org/files/mimic-cxr-jpg/2.0.0/mimic-cxr-2.0.0-metadata.csv",
+            "imgpath" : "/data/physionet.org/files/mimic-cxr-jpg/2.0.0/files",
+            "csvpath" : "/data/physionet.org/files/mimic-cxr-jpg/2.0.0/mimic-cxr-2.0.0-chexpert.csv",
+            "metacsvpath" : "/data/physionet.org/files/mimic-cxr-jpg/2.0.0/mimic-cxr-2.0.0-metadata.csv",
             "mode" : "PER_IMAGE",
             "pathologies" : [
                 "Enlarged Cardiomediastinum",
