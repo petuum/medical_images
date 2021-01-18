@@ -68,14 +68,19 @@ class CNNnetwork(nn.Module):
 class ClassifierWrapper(CNNnetwork):
 
     def forward(self, batch):
-        preds = super().forward(x=batch.image, num_chs=batch.channels)
+        out = super().forward(x=batch.image, num_chs=batch.channels)
         self.loss = nn.BCEWithLogitsLoss(reduction='none')
-        losses = self.loss(preds, batch.target).mean(dim=0)
+        losses = self.loss(out, batch.target).mean(dim=0)
         loss = losses.mean()
 
-        return {"loss": loss, "preds": preds}
+        threshold = 0.5
+        # Convert logits to probablities
+        scores = torch.sigmoid(out)
+
+        preds = (scores > threshold).to(torch.float)
+        return {"loss": loss, "preds": preds, "scores": scores}
 
 
 if __name__ == "__main__":
-    m = Network()
+    m = ClassifierWrapper()
     m.to_distributed("cuda:0")
