@@ -96,5 +96,5 @@ executor = Executor(
 )
 
 executor.load(path='./train_checkpoint.pt')
-# executor.train()
+executor.train()
 executor.test()
