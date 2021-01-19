@@ -21,7 +21,8 @@ import torch
 import torch.nn as nn
 
 # Texar Library
-from texar.torch.modules import UnidirectionalRNNEncoder, WordEmbedder, BasicRNNDecoder
+from texar.torch.modules import UnidirectionalRNNEncoder,\
+    WordEmbedder, BasicRNNDecoder
 from texar.torch import HParams
 from texar.torch.core import BahdanauAttention
 from texar.torch import ModuleBase
@@ -61,9 +62,13 @@ class CoAttention(ModuleBase):
         visual_units = self.hparams.visual_units
         semantic_units = self.hparams.semantic_units
 
-        # As per the On the Automatic Generation of Medical Imaging Reports paper
-        self.num_visual = self.hparams.num_visual  # Number of Visual features
-        self.num_semantic = self.hparams.num_semantic  # Number of Semantic features
+        # As per the On the Automatic Generation
+        # of Medical Imaging Reports paper
+
+        # Number of Visual features
+        self.num_visual = self.hparams.num_visual
+        # Number of Semantic features
+        self.num_semantic = self.hparams.num_semantic
 
         # The attention layer
         self.visual_attn = BahdanauAttention(
@@ -247,7 +252,7 @@ class LstmSentence(ModuleBase):
         # TODO: BUG HERE! inp_lstm needs to have size [batch, time, depth], got 2 dims only here
 
         output, hidden = self.lstm(
-            inp_lstm.view(1, 1, -1),
+            inp_lstm.view(self.batch_size, 1, -1),
             initial_state=(h_0.view(self.batch_size, self.hidden_size),
                            c_0.view(self.batch_size, self.hidden_size)))
 
