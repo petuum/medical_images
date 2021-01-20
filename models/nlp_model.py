@@ -227,10 +227,34 @@ class LstmSentence(ModuleBase):
         }
 
         default_hparams = UnidirectionalRNNEncoder.default_hparams()
-
         hparams_rnn = HParams(enc_hparams, default_hparams)
 
-        self.lstm = UnidirectionalRNNEncoder(input_size=input_size, hparams=hparams_rnn.todict())
+        self.lstm = UnidirectionalRNNEncoder(
+            input_size=input_size,
+            hparams=hparams_rnn.todict()
+        )
+
+        self.W_t_h = nn.Linear(
+            in_features=self.hidden_size,
+            out_features=input_size)
+        
+        self.W_t_ctx = nn.Linear(
+            in_features=input_size,
+            out_features=input_size)
+
+        self.W_stop_s_1 = nn.Linear(
+            in_features=self.hidden_size,
+            out_features=input_size)
+
+        self.W_stop_s = nn.Linear(
+            in_features=self.hidden_size,
+            out_features=input_size)
+
+        self.W_stop = nn.Linear(in_features=input_size,
+                                out_features=2)
+
+        self.W_topic = nn.Linear(in_features=input_size,
+                                 out_features=input_size,)
 
     def forward(self, v, a, hidden):
         # TODO: Fill in return docstring
@@ -249,18 +273,30 @@ class LstmSentence(ModuleBase):
         (h_0, c_0) = hidden
 
         inp_lstm, visual_alignments, semantic_alignments = self.co_attn(v, a, h_0)
-        # TODO: BUG HERE! inp_lstm needs to have size [batch, time, depth], got 2 dims only here
+        
+        # Unsqueeze the second dimension to make it a 3-D tensor.
+        # Same solution as in
+        # https://github.com/ZexinYan/Medical-Report-Generation/blob/master/utils/models.py#L323
+        inp_lstm = inp_lstm.unsqueeze(1)
 
         output, hidden = self.lstm(
-            inp_lstm.view(self.batch_size, 1, -1),
-            initial_state=(h_0.view(self.batch_size, self.hidden_size),
-                           c_0.view(self.batch_size, self.hidden_size)))
+            inp_lstm,
+            initial_state=(
+                h_0.view(self.seq_len, self.batch_size, self.hidden_size),
+                c_0.view(self.seq_len, self.batch_size, self.hidden_size))
+        )
 
-        return output, hidden, visual_alignments, semantic_alignments
+        # Equation 5 in the paper
+        topic = torch.tanh(self.W_t_h(hidden) + self.W_t_ctx(ctx))
+        # Equation 6 in the paper
+        p_stop = self.W_stop(
+            torch.tanh(
+                self.W_stop_s_1(prev_hidden) + self.W_stop_s(hidden)
+            )
+        )
+        return output, hidden, topic, p_stop, visual_alignments, semantic_alignments
 
     def init_hidden(self):
-        # TODO: self.seq_len can only be 1 here since h_0.view(self.batch_size, self.hidden_size)
-        #  Need to change either hidden init here or h_0.view/c_0.view above
         r"""Initialize hidden tensor
 
         Returns:
@@ -325,13 +361,15 @@ class LstmWord(ModuleBase):
         super().__init__(hparams=hparams)
 
         self.hidden_size = self.hparams.hidden_size
-        output_size = self.hparams.output_size
+        self.output_size = self.hparams.output_size
         self.seq_len = self.hparams.seq_len
         self.batch_size = self.hparams.batch_size
 
         # Embedding layer
-        self.embedding = \
-            WordEmbedder(vocab_size=output_size, hparams={'dim': self.hidden_size})
+        self.embedding = WordEmbedder(
+            vocab_size=self.output_size,
+            hparams={'dim': self.hidden_size}
+        )
 
         enc_hparams = {
             'rnn_cell': {
@@ -346,8 +384,12 @@ class LstmWord(ModuleBase):
 
         hparams_rnn = HParams(enc_hparams, default_hparams)
 
-        self.decoder = BasicRNNDecoder(input_size=self.hidden_size, token_embedder=self.embedding,
-                                       vocab_size=output_size, hparams=hparams_rnn.todict())
+        self.decoder = BasicRNNDecoder(
+            input_size=self.hidden_size,
+            token_embedder=self.embedding,
+            vocab_size=self.output_size,
+            hparams=hparams_rnn.todict()
+        )
 
     def forward(self, hidden, train, inp=None, sentence_len=None):
         """
