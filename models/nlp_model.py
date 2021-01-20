@@ -256,7 +256,7 @@ class LstmSentence(ModuleBase):
         self.W_topic = nn.Linear(in_features=input_size,
                                  out_features=input_size,)
 
-    def forward(self, v, a, hidden):
+    def forward(self, v, a, hidden, prev_hidden):
         # TODO: Fill in return docstring
         r"""
         Return the visual_alignments, semantic_alignments for the loss function calculation
@@ -287,7 +287,7 @@ class LstmSentence(ModuleBase):
         )
 
         # Equation 5 in the paper
-        topic = torch.tanh(self.W_t_h(hidden) + self.W_t_ctx(ctx))
+        topic = torch.tanh(self.W_t_h(hidden) + self.W_t_ctx(inp_lstm.squeeze(1)))
         # Equation 6 in the paper
         p_stop = self.W_stop(
             torch.tanh(
