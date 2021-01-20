@@ -134,3 +134,4 @@ output_default/
 tbx_folder/
 *.csv
 *.sh
+resources/

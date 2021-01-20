@@ -73,9 +73,10 @@ executor = Executor(
     stop_training_on=cond.iteration(args.max_train_steps),
     test_mode='eval',
     tbx_logging_dir='tbx_folder',
-    test_metrics=[("loss", metric.Average())]
+    test_metrics=[("loss", metric.Average()),
+                  metric.Accuracy[float](pred_name="preds", label_name="target")]
 )
 
-# executor.load(path='exp_default/1610142693.9463053.pt')
-executor.train()
+executor.load(path='exp_default/1610560026.835364.pt')
+# executor.train()
 executor.test()

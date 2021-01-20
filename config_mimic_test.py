@@ -92,11 +92,11 @@ dataset = {
                     })
                 ],
                 "mode": "PER_IMAGE",
-                "batch_size": 32,
+                "batch_size": 64,
                 "lazy_strategy": 'all',
                 "cache_strategy": 'none',
                 "shuffle": True,
-                "shuffle_buffer_size": 32,
+                "shuffle_buffer_size": 64,
                 "input_channel": "RGB"
             }
         }
