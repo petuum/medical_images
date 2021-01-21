@@ -39,15 +39,15 @@ from texar.torch.losses import sequence_sparse_softmax_cross_entropy
 
 # embedding_keys.pkl contains the concepts of all the nodes in the parent graph
 with open("embedding_keys.pkl", "rb") as f:
-   embedding_keys = pickle.load(f)
+    embedding_keys = pickle.load(f)
 
 # store them in the embedding_keys
-for i,item in enumerate(embedding_keys):
+for i, item in enumerate(embedding_keys):
     words = item.replace("_", " ")
     embedding_keys[i] = words
 
-# use only those embedding_keys that are present in the strongly connected component of the
-# parent graph
+# use only those embedding_keys that are present in the
+# strongly connected component of the parent graph
 embedding_keys = np.array(embedding_keys)
 # TODO: Confirm component
 index2phrase = embedding_keys["component"]
@@ -56,7 +56,7 @@ index2phrase = embedding_keys["component"]
 def generate_phrase(
         phrase_decoder,
         new_node_embedding,
-        index=None, batch_size = 1, train=True, device='cpu'):
+        index=None, batch_size=1, train=True, device='cpu'):
     r"""This is a function that is executed at every time step S of sentence LSTM
     Args:
         phrase_decoder (): An instance of the class LSTM_word.
@@ -111,12 +111,13 @@ def generate_phrase(
 
 
 def tag_loss(p_pred, p_target):
-    r"""Tag loss function. Apply the weighting lambdas in the main function this is just a loss.
-    without lambda weights.
+    r"""Tag loss function. Apply the weighting lambdas in the main
+    function this is just a loss. without lambda weights.
     Args:
-        p_pred (): Size: [batch_size, hidden]. It is logits before applying softmax or sigmoid
-        p_target (): Size: [batch_size, hidden]. Assuming p_target is a normalised vector of
-        distribution l/||l||_1 of tags
+        p_pred (): Size: [batch_size, hidden]. It is logits before
+        applying softmax or sigmoid
+        p_target (): Size: [batch_size, hidden]. Assuming p_target is
+        a normalised vector of distribution l/||l||_1 of tags
 
     Returns:
         loss (torch.Tensor): Calculated tag loss
@@ -130,10 +131,10 @@ def attn_loss(alpha, beta):
     r"""Attention loss function. Weigh it in the main loop as per lambda
 
     Args:
-        alpha (): Size: [batch_size, N, S]. N is the number of visual features. S is the number
-        of time steps in Sentence LSTM.
-        beta (): Size: [batch_size, M, S]. M is the number of semantic features. S is the number
-        of time steps in Sentence LSTM
+        alpha (): Size: [batch_size, N, S]. N is the number of visual features.
+        S is the number of time steps in Sentence LSTM.
+        beta (): Size: [batch_size, M, S]. M is the number of semantic features.
+        S is the number of time steps in Sentence LSTM
 
     Returns:
         loss (torch.Tensor): Calculated attention loss
