@@ -132,5 +132,11 @@ dmypy.json
 exp_default/
 output_default/
 tbx_folder/
-*.csv
+**.csv
 *.sh
+
+# checkpoint
+**.pt
+
+# vscode realted
+.vscode

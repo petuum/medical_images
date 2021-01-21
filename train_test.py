@@ -4,6 +4,7 @@ from network import ClassifierWrapper
 from texar.torch.run import *
 
 from mimic_dataset import MIMICCXR_Dataset
+from evaluation_metrics import *
 from config_mimic_test import dataset as hparams_dataset
 from pathlib import Path
 
@@ -46,9 +47,12 @@ args = parser.parse_args()
 datasets = {split: MIMICCXR_Dataset(hparams=hparams_dataset[split])
             for split in ["train", "val", "test"]}
 print("done with loading")
+
 # model
 model = ClassifierWrapper()
 output_dir = Path(args.output_dir)
+num_label = len(hparams_dataset['pathologies'])
+
 # Trainer
 executor = Executor(
     model=model,
@@ -63,12 +67,13 @@ executor = Executor(
     log_every=cond.iteration(args.display_steps),
     log_destination=[sys.stdout, output_dir / "log.txt"],
     validate_every=cond.epoch(1),
-    valid_metrics=[metric.Accuracy[float](pred_name="preds", label_name="target"),
-                    metric.Precision[float](pred_name="preds", label_name="target",mode='macro'),
-                   metric.Recall[float](pred_name="preds", label_name="target",mode='macro'),
-                   metric.F1[float](pred_name="preds", label_name="target",mode='macro'),
-                   metric.ConfusionMatrix[float](pred_name="preds", label_name="target"),
-                   ("loss", metric.Average())],
+    valid_metrics=[
+        HammingLoss[float](num_label=num_label, pred_name="preds", label_name="target"),
+        MultiLabelConfusionMatrix(num_label=num_label, pred_name="preds", label_name="target"),
+        MultiLabelPrecision(num_label=num_label, pred_name="preds", label_name="target"),
+        MultiLabelRecall(num_label=num_label, pred_name="preds", label_name="target"),
+        MultiLabelF1(num_label=num_label, pred_name="preds", label_name="target"),
+    ],
     plateau_condition=[
         cond.consecutive(cond.validation(better=False), 2)],
     action_on_plateau=[
@@ -78,13 +83,18 @@ executor = Executor(
     stop_training_on=cond.iteration(args.max_train_steps),
     test_mode='eval',
     tbx_logging_dir='tbx_folder',
-    test_metrics=[metric.Accuracy[float](pred_name="preds", label_name="target"),
-                    metric.Precision[float](pred_name="preds", label_name="target",mode='macro'),
-                    metric.Recall[float](pred_name="preds", label_name="target",mode='macro'),
-                    metric.F1[float](pred_name="preds", label_name="target",mode='macro'),
-                    metric.ConfusionMatrix[float](pred_name="preds", label_name="target"),
-                   ("loss", metric.Average())]
+    test_metrics=[
+        # HammingLoss[float](num_label=num_label, pred_name="preds", label_name="target"),
+        RocAuc(pred_name="scores", label_name="target"),
+        # MultiLabelConfusionMatrix(num_label=num_label, pred_name="preds", label_name="target"),
+        # MultiLabelPrecision(num_label=num_label, pred_name="preds", label_name="target"),
+        # MultiLabelRecall(num_label=num_label, pred_name="preds", label_name="target"),
+        # MultiLabelF1(num_label=num_label, pred_name="preds", label_name="target"),
+    ],
+    print_model_arch=False,
+    show_live_progress=True
 )
 
+executor.load(path='./train_checkpoint.pt')
 executor.train()
 executor.test()

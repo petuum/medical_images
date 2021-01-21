@@ -1,10 +1,9 @@
 import numpy as np
-import os,sys,os.path
+import os.path as osp
 import pandas as pd
 from pathlib import Path
 from sklearn.model_selection import train_test_split
 from config_mimic import dataset as hparams_dataset
-
 
 
 class preprocess_mimic():
@@ -71,9 +70,10 @@ def combine_path(imgpath, row):
     subjectid = str(row["subject_id"])
     studyid = str(row["study_id"])
     dicom_id = str(row["dicom_id"])
-    img_path = os.path.join(imgpath, "p" + subjectid[:2], "p" + subjectid, "s" + studyid, dicom_id + ".jpg")
+    img_path = osp.join(imgpath, "p" + subjectid[:2], "p" + subjectid, "s" + studyid, dicom_id + ".jpg")
 
     return img_path
+
 
 if __name__ == "__main__":
     preprocess_mimic()
