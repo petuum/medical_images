@@ -1,10 +1,14 @@
 import torch
-import argparse, sys
+import argparse
+import sys
 from network import ClassifierWrapper
-from texar.torch.run import *
+from texar.torch.run import Executor, cond, metric, action
 
 from mimic_dataset import MIMICCXR_Dataset
-from evaluation_metrics import *
+
+from evaluation_metrics import HammingLoss, MultiLabelConfusionMatrix, \
+    MultiLabelF1, MultiLabelPrecision, MultiLabelRecall, RocAuc
+
 from config_mimic_test import dataset as hparams_dataset
 from pathlib import Path
 
@@ -84,12 +88,12 @@ executor = Executor(
     test_mode='eval',
     tbx_logging_dir='tbx_folder',
     test_metrics=[
-        # HammingLoss[float](num_label=num_label, pred_name="preds", label_name="target"),
+        HammingLoss[float](num_label=num_label, pred_name="preds", label_name="target"),
         RocAuc(pred_name="scores", label_name="target"),
-        # MultiLabelConfusionMatrix(num_label=num_label, pred_name="preds", label_name="target"),
-        # MultiLabelPrecision(num_label=num_label, pred_name="preds", label_name="target"),
-        # MultiLabelRecall(num_label=num_label, pred_name="preds", label_name="target"),
-        # MultiLabelF1(num_label=num_label, pred_name="preds", label_name="target"),
+        MultiLabelConfusionMatrix(num_label=num_label, pred_name="preds", label_name="target"),
+        MultiLabelPrecision(num_label=num_label, pred_name="preds", label_name="target"),
+        MultiLabelRecall(num_label=num_label, pred_name="preds", label_name="target"),
+        MultiLabelF1(num_label=num_label, pred_name="preds", label_name="target"),
     ],
     print_model_arch=False,
     show_live_progress=True

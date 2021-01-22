@@ -22,7 +22,7 @@ dataset = {
             "train" : {
                 "processed_csv": "/home/jiachen.li/medical_images/preprocessed/mimic_train.csv",
                 "transforms": [
-                    ("ToPILImage", {}),
+                    # ("ToPILImage", {}),
                     ("RandomAffine", {
                         "degrees": (-5, 5),
                         "shear": (0.9, 1.1)
@@ -45,13 +45,14 @@ dataset = {
                 "cache_strategy": 'none',
                 "shuffle": True,
                 "shuffle_buffer_size": 32,
-                "input_channel": "RGB"
+                "input_channel": "RGB",
+                "num_parallel_calls": 1
 
             },
             "val" : {
                 "processed_csv": "/home/jiachen.li/medical_images/preprocessed/mimic_val.csv",
                 "transforms":[
-                    ("ToPILImage", {}),
+                    # ("ToPILImage", {}),
                     ("Resize", {
                         "size": 256,
                         "interpolation": 1
@@ -71,13 +72,14 @@ dataset = {
                 "cache_strategy": 'none',
                 "shuffle": True,
                 "shuffle_buffer_size": 32,
-                "input_channel": "RGB"
+                "input_channel": "RGB",
+                "num_parallel_calls": 1,
 
             },
             "test": {
                 "processed_csv": "/home/jiachen.li/medical_images/preprocessed/mimic_test.csv",
                 "transforms": [
-                    ("ToPILImage", {}),
+                    # ("ToPILImage", {}),
                     ("Resize", {
                         "size": 256,
                         "interpolation": 1
@@ -97,6 +99,7 @@ dataset = {
                 "cache_strategy": 'none',
                 "shuffle": True,
                 "shuffle_buffer_size": 32,
-                "input_channel": "RGB"
+                "input_channel": "RGB",
+                "num_parallel_calls": 1,
             }
         }

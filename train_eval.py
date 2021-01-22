@@ -1,7 +1,8 @@
 import torch
-import argparse, sys
+import argparse
+import sys
 from network import ClassifierWrapper
-from texar.torch.run import *
+from texar.torch.run import Executor, cond, metric, action
 
 from mimic_dataset import MIMICCXR_Dataset
 from config_mimic_test import dataset as hparams_dataset

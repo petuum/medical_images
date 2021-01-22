@@ -2,6 +2,7 @@ import numpy as np
 import pandas as pd
 import torch
 import torch.utils.data
+from torchvision.datasets.folder import pil_loader
 import torchvision.transforms as tfms
 import imageio
 from texar.torch.hyperparams import HParams
@@ -26,14 +27,15 @@ class MIMICCXR_DataSource(DataSource):
         return len(self.csv)
 
     def __iter__(self):
-        for index, row in self.csv.iterrows():
+        for _, row in self.csv.iterrows():
             yield row
 
     def __getitem__(self, index):
         index = int(index)
+
         def get_entries(index):
             df = self.csv.iloc[index]
-            paths = [x for x in df[0].split(',')]
+            paths = df[0].split(',')
             label = df[1:].tolist()
             return paths, label
 
@@ -61,7 +63,7 @@ class MIMICCXR_DataSource(DataSource):
         if shuffle:
             img_paths = np.random.permutation(img_paths).tolist()
         ret = []
-        for i, img_path in enumerate(img_paths):
+        for img_path in img_paths:
             image = imageio.imread(img_path, as_gray=True)
             ret.append(self.transforms(image))
         return ret
@@ -70,7 +72,9 @@ class MIMICCXR_DataSource(DataSource):
         if self._hparams["input_channel"] == "GRAY":
             image = imageio.imread(img_path, as_gray=True)
         else:
-            image = imageio.imread(img_path, as_gray=False, pilmode="RGB")
+            # In this way, we can skip the ToPILImage in the data augmentations,
+            # speeding up the data loading
+            image = pil_loader(img_path)
         image_tensor = transforms(image)
         return image_tensor
 
@@ -92,8 +96,9 @@ class MIMICCXR_DataSource(DataSource):
 
 
 if __name__ == "__main__":
+    import config_mimic_test as config
     hparams = config.dataset
-    dataset = MIMICCXR_DataSource(hparams)
+    dataset = MIMICCXR_DataSource(hparams['train'])
     # Dataloader
     train_size = int(0.8 * len(dataset))
     valid_size = len(dataset) - train_size
@@ -106,11 +111,11 @@ if __name__ == "__main__":
     train_dataset.csv = dataset.csv.iloc[train_dataset.indices]
     valid_dataset.csv = dataset.csv.iloc[valid_dataset.indices]
     train_loader = torch.utils.data.DataLoader(train_dataset,
-                                               batch_size=10,
+                                               batch_size=128,
                                                shuffle=True,
-                                               num_workers=0,
+                                               num_workers=8,
                                                pin_memory=True,
                                                drop_last=True)
 
-    for batch in train_loader:
-        print(batch)
+    for i, batch in enumerate(train_loader):
+        print(i)

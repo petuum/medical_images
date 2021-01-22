@@ -2,8 +2,6 @@ from texar.torch.data.data import DatasetBase
 from mimic_cxr import MIMICCXR_DataSource
 import texar as tx
 import torch
-import numpy as np
-import imageio
 
 
 class MIMICCXR_Dataset(DatasetBase):
@@ -15,7 +13,7 @@ class MIMICCXR_Dataset(DatasetBase):
         return {
             "image": raw_example[0],
             "target": raw_example[1],
-            "channels": raw_example[2]
+            "channel": raw_example[2]
         }
 
     def collate(self, examples):
@@ -25,17 +23,26 @@ class MIMICCXR_Dataset(DatasetBase):
 
         # `images` is a `tensor` of input images, storing the transformed
         # images for each example in the batch.
-        images = [ex["image"] for ex in examples]
-        images = torch.stack([i for i in images])
-        channels = [ex["channels"] for ex in examples]
+
         # `target` is the one hot encoding of the labels with the size of
         # number of classes, stack into the batch
-        target = [ex["target"] for ex in examples]
-        target = torch.stack([i for i in target])
+
+        images = []
+        channels = []
+        targets = []
+
+        for ex in examples:
+            images.append(ex["image"])
+            channels.append(ex["channel"])
+            targets.append(ex["target"])
+
+        images = torch.stack(images)
+        targets = torch.stack(targets)
+
         return tx.torch.data.Batch(
             len(examples),
             image=images,
-            target=target,
+            target=targets,
             channels=channels)
 
     @staticmethod
