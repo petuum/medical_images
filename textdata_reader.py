@@ -20,12 +20,63 @@ import argparse
 import pandas as pd
 from termcolor import colored
 from forte.data.data_pack import DataPack
+from forte.processors.base import PackProcessor
 from forte.data.readers import PlainTextReader
 from forte.data.span import Span
 from forte.pipeline import Pipeline
 from forte.processors.nltk_processors import NLTKWordTokenizer, \
     NLTKSentenceSegmenter
-from ft.onto.base_ontology import Token, Sentence
+from forte.processors.lowercaser_processor import LowerCaserProcessor
+from mimic.onto.mimic_ontology import Impression, Findings, FilePath
+
+
+class FindingsExtractor(PackProcessor):
+    r"""A wrapper of fingings extractor.
+    """
+
+    def __init__(self):
+        super().__init__()
+
+    def _process(self, input_pack: DataPack):
+        findings_ind = input_pack.text.find("FINDINGS")
+        impression_ind = input_pack.text.find("IMPRESSION")
+        begin = 0 if findings_ind == -1 else findings_ind
+        end = 0 if impression_ind == -1 else impression_ind - 1
+        findings = Findings(input_pack, begin, end)
+        findings.has_content = (begin == -1)
+
+class ImpressionExtractor(PackProcessor):
+    r"""A wrapper of impression extractor.
+    """
+
+    def __init__(self):
+        super().__init__()
+
+    def _process(self, input_pack: DataPack):
+        impression_ind = input_pack.text.find("IMPRESSION")
+        begin = 0 if impression_ind == -1 else impression_ind
+        end = len(input_pack.text)
+        impression = Impression(input_pack, begin, end)
+        impression.has_content = (begin == -1)
+
+class FilePathGetter(PackProcessor):
+    r"""A wrapper to get the file path hierarchy of the current file
+    """
+    def __init__(self):
+        super().__init__()
+
+    def _process(self, input_pack: DataPack):
+        file_path = FilePath(input_pack, 0, len(input_pack.text))
+        file_path.path = input_pack.pack_name
+
+# class NonAlphaTokenRemover(PackProcessor):
+#     r"""A wrapper of NLTK word tokenizer.
+#     """
+#
+#     def __init__(self):
+#         super().__init__()
+#
+#     def _process(self, input_pack: DataPack):
 
 
 class MimicReportReader(PlainTextReader):
@@ -62,45 +113,31 @@ def parse_mimic_reports(dataset_dir: str, save_csv: str):
     """
     pipeline = Pipeline[DataPack]()
     pipeline.set_reader(MimicReportReader())
-    pipeline.add(NLTKSentenceSegmenter())
+    pipeline.add(FindingsExtractor())
+    pipeline.add(ImpressionExtractor())
     pipeline.add(NLTKWordTokenizer())
+    pipeline.add(FilePathGetter())
+    pipeline.add(LowerCaserProcessor())
     pipeline.initialize()
-    dataframe = pd.DataFrame(columns=["path", "findings", "impression"])
 
     for pack in pipeline.process_dataset(dataset_dir):
         print(colored("Document", 'red'), pack.pack_name)
-        findings_sentence = ""
-        impression_sentence = ""
-        findings_mode = False
-        impression_mode = False
-        for sentence in pack.get(Sentence):
-            tokens = [token.text.lower() for token in
-                      pack.get(Token, sentence)]
-            if tokens[0] == 'findings':
-                tokens = tokens[1:]
-                findings_mode = True
-                impression_mode = False
-            elif tokens[0] == 'impression':
-                tokens = tokens[1:]
-                impression_mode = True
-                findings_mode = False
+        for findings in pack.get_data(Findings):
+            print(findings["context"])
+        for impression in pack.get_data(Impression):
+            print(impression["context"])
 
-            words = [word for word in tokens
-                     if word.isalpha() or word[:-1].isalpha()]
-
-            result = ' '.join(words)
-            if findings_mode:
-                findings_sentence += result
-                findings_sentence += " "
-            if impression_mode:
-                impression_sentence += result
-                impression_sentence += " "
+        # tokens = [token.text.lower() for token in
+        #           pack.get(Token, sentence)]
+        #
+        # words = [word for word in tokens
+        #          if word.isalpha() or word[:-1].isalpha()]
+        #
+        # result = ' '.join(words)
 
         curr_path = pack.pack_name.replace(dataset_dir, "")
-        dataframe = dataframe.append({"path": curr_path, "impression": impression_sentence,
-                                      "findings": findings_sentence}, ignore_index=True)
 
-    dataframe.to_csv(save_csv)
+
 
 
 if __name__ == '__main__':

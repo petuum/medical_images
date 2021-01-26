@@ -1,0 +1,42 @@
+{
+  "name": "mimic_ontology",
+  "additional_prefixes": [
+    "mimic.onto.mimic_ontology"
+  ],
+  "definitions": [
+    {
+      "entry_name": "mimic.onto.mimic_ontology.Findings",
+      "parent_entry": "forte.data.ontology.top.Annotation",
+      "description": "A span based annotation class Findings, used to refer to findings part of the report",
+      "attributes": [
+        {
+          "name": "has_content",
+          "type": "bool"
+        }
+      ]
+    },
+    {
+      "entry_name": "mimic.onto.mimic_ontology.Impression",
+      "parent_entry": "forte.data.ontology.top.Annotation",
+      "description": "A span based annotation class Impression, used to refer to impression part of the report",
+      "attributes": [
+        {
+          "name": "has_content",
+          "type": "bool"
+        }
+      ]
+    },
+    {
+      "entry_name": "mimic.onto.mimic_ontology.FilePath",
+      "parent_entry": "forte.data.ontology.top.Annotation",
+      "description": "A class used to refer to file path hierarchy of the report",
+      "attributes": [
+        {
+          "name": "path",
+          "type": "str"
+        }
+      ]
+    }
+  ]
+
+}
