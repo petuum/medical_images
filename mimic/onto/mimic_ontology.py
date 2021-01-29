@@ -10,6 +10,7 @@ Automatically generated ontology mimic_ontology. Do not change manually.
 from dataclasses import dataclass
 from forte.data.data_pack import DataPack
 from forte.data.ontology.top import Annotation
+from forte.data.ontology.top import Generics
 from typing import Optional
 
 __all__ = [
@@ -50,15 +51,15 @@ class Impression(Annotation):
 
 
 @dataclass
-class FilePath(Annotation):
+class FilePath(Generics):
     """
-    A class used to refer to file path hierarchy of the report
+    A class Impression, used to refer to impression part of the report
     Attributes:
-        path (Optional[str])
+        img_study_path (Optional[str])
     """
 
-    path: Optional[str]
+    img_study_path: Optional[str]
 
-    def __init__(self, pack: DataPack, begin: int, end: int):
-        super().__init__(pack, begin, end)
-        self.path: Optional[str] = None
+    def __init__(self, pack: DataPack):
+        super().__init__(pack)
+        self.img_study_path: Optional[str] = None

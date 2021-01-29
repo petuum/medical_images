@@ -26,17 +26,18 @@
         }
       ]
     },
-    {
+        {
       "entry_name": "mimic.onto.mimic_ontology.FilePath",
-      "parent_entry": "forte.data.ontology.top.Annotation",
-      "description": "A class used to refer to file path hierarchy of the report",
+      "parent_entry": "forte.data.ontology.top.Generics",
+      "description": "A class Impression, used to refer to impression part of the report",
       "attributes": [
         {
-          "name": "path",
+          "name": "img_study_path",
           "type": "str"
         }
       ]
     }
+
   ]
 
 }
