@@ -15,7 +15,9 @@ from forte.data.multi_pack import MultiPack
 
 
 class TestFindingsExtractor(unittest.TestCase):
-
+    r"""
+    Test mimic processor for report findings section extractor
+    """
     def setUp(self):
         self.mimic_pl = Pipeline[DataPack]()
         self.mimic_pl.set_reader(StringReader())
@@ -53,7 +55,9 @@ class TestFindingsExtractor(unittest.TestCase):
 
 
 class TestImpressionExtractor(unittest.TestCase):
-
+    r"""
+    Test mimic processor for report impression section extractor
+    """
     def setUp(self):
         self.mimic_pl = Pipeline[DataPack]()
         self.mimic_pl.set_reader(StringReader())
@@ -81,7 +85,9 @@ class TestImpressionExtractor(unittest.TestCase):
 
 
 class TestNonAlphaTokenRemover(unittest.TestCase):
-
+    r"""
+    Test mimic processor for non alpha token removal in content
+    """
     def setUp(self):
         self.mimic_pl = Pipeline[MultiPack]()
         self.mimic_pl.set_reader(StringReader())
@@ -104,14 +110,3 @@ class TestNonAlphaTokenRemover(unittest.TestCase):
         for idx, sentences in enumerate(pack.get(Sentence)):
             print(sentences.text)
             self.assertEqual(sentences.text, rm_text)
-
-if __name__ == "__main__":
-    test_case = TestFindingsExtractor()
-    test_case.setUp()
-    test_case.test_extractor()
-    test_case = TestImpressionExtractor()
-    test_case.setUp()
-    test_case.test_extractor()
-    test_case = TestNonAlphaTokenRemover()
-    test_case.setUp()
-    test_case.test_cleaner()
