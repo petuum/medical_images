@@ -48,7 +48,7 @@ class FindingsExtractor(PackProcessor):
             begin = 0
             end = 0
         else:
-            begin = findings_ind + len("FINDINGS")
+            begin = findings_ind + len("FINDINGS") + 1
             if impression_ind != -1 and findings_ind < impression_ind:
                 end = impression_ind - 1
             else:
@@ -71,7 +71,7 @@ class ImpressionExtractor(PackProcessor):
             begin = 0
             end = 0
         else:
-            begin = impression_ind + len("IMPRESSION")
+            begin = impression_ind + len("IMPRESSION") + 1
             if findings_ind != -1 and impression_ind < findings_ind:
                 end = findings_ind - 1
             else:
@@ -88,7 +88,10 @@ class FilePathGetter(PackProcessor):
 
     def _process(self, input_pack: DataPack):
         filepath = FilePath(input_pack)
-        filepath.img_study_path = input_pack.pack_name
+        if input_pack.pack_name is not None:
+            filepath.img_study_path = input_pack.pack_name
+        else:
+            filepath.img_study_path = "packname"
 
 
 class NonAlphaTokenRemover(MultiPackProcessor):
