@@ -1,4 +1,4 @@
-# Copyright 2021 The Forte Authors. All Rights Reserved.
+# Copyright 2021 The Petuum Authors. All Rights Reserved.
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -35,7 +35,7 @@ from forte.data.selector import NameMatchSelector
 
 
 class FindingsExtractor(PackProcessor):
-    r"""A wrapper of fingings extractor.
+    r"""A processor to extract the Findings session in the medical report.
     """
 
     def __init__(self):
@@ -58,7 +58,7 @@ class FindingsExtractor(PackProcessor):
 
 
 class ImpressionExtractor(PackProcessor):
-    r"""A wrapper of impression extractor.
+    r"""A processor to extract the Impression session in the medical report.
     """
 
     def __init__(self):
@@ -81,7 +81,7 @@ class ImpressionExtractor(PackProcessor):
 
 
 class FilePathGetter(PackProcessor):
-    r"""A wrapper to get the file path hierarchy of the current file
+    r"""A wrapper to get the file path hierarchy of the current file.
     """
     def __init__(self):
         super().__init__()
@@ -95,7 +95,8 @@ class FilePathGetter(PackProcessor):
 
 
 class NonAlphaTokenRemover(MultiPackProcessor):
-    r"""A wrapper of NLTK word tokenizer.
+    r"""A wrapper of non alpha token remover that requires a nltk tokenizer and filepath getter in the
+    upstream of the pipeline. The modified text would be added to a new pack.
     """
 
     def __init__(self):
@@ -109,8 +110,8 @@ class NonAlphaTokenRemover(MultiPackProcessor):
         token_texts = [token.text for token in token_entries]
         words = [word for word in token_texts
                  if word.isalpha() or word[:-1].isalpha() or word == '.']
-        filepath = list(input_pack.get_pack(
-            self.in_pack_name).get(entry_type=FilePath))[0]
+        filepath = input_pack.get_pack(
+            self.in_pack_name).get_single(entry_type=FilePath)
         pack = input_pack.add_pack(self.out_pack_name)
         result = ' '.join(words)
         pack.set_text(text=result)
@@ -119,7 +120,7 @@ class NonAlphaTokenRemover(MultiPackProcessor):
 
 class MimicReportReader(PlainTextReader):
     r"""Customized reader for mimic report that read text iteratively
-    from the dir and replace non impression and non findings text with
+    from the directory and replace non impression and non findings text with
     blank string.
 
     """
@@ -128,7 +129,7 @@ class MimicReportReader(PlainTextReader):
         r"""Replace non impression and non findings text with blank string.
         Args:
             text: The original mimic report text to be cleaned.
-        Returns: List[Tuple[Span, str]]: the replacement operations
+        Returns: List[Tuple[Span, str]]: the replacement operations.
         """
         findings_ind = text.find("FINDINGS")
         impression_ind = text.find("IMPRESSION")
@@ -148,9 +149,9 @@ class MimicReportReader(PlainTextReader):
 def parse_mimic_reports(dataset_dir: str):
     r"""Parse mimic report with tokenizer, lowercase and non-alpha removal to
     generate forte json file with the same name with preprocessed content and
-    the span information of impression and findings
+    the span information of impression and findings.
     Args:
-        dataset_dir: the directory that stores all the text files
+        dataset_dir: the directory that stores all the text files.
     """
     pipeline = Pipeline[MultiPack]()
     pipeline.set_reader(MimicReportReader())

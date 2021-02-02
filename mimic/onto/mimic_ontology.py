@@ -53,7 +53,7 @@ class Impression(Annotation):
 @dataclass
 class FilePath(Generics):
     """
-    A class Impression, used to refer to impression part of the report
+    A class FilePath, used to refer to filepath of the report
     Attributes:
         img_study_path (Optional[str])
     """
