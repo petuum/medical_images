@@ -24,7 +24,6 @@ from forte.data.readers import PlainTextReader
 from forte.data.span import Span
 from forte.pipeline import Pipeline
 from forte.processors.nltk_processors import NLTKWordTokenizer
-from forte.processors.lowercaser_processor import LowerCaserProcessor
 from mimic.onto.mimic_ontology import Impression, Findings, FilePath
 from forte.data.multi_pack import MultiPack
 from forte.processors.base import MultiPackProcessor
@@ -80,22 +79,8 @@ class ImpressionExtractor(PackProcessor):
         impression.has_content = (impression_ind != -1)
 
 
-class FilePathGetter(PackProcessor):
-    r"""A wrapper to get the file path hierarchy of the current file.
-    """
-    def __init__(self):
-        super().__init__()
-
-    def _process(self, input_pack: DataPack):
-        filepath = FilePath(input_pack)
-        if input_pack.pack_name is not None:
-            filepath.img_study_path = input_pack.pack_name
-        else:
-            filepath.img_study_path = "packname"
-
-
 class NonAlphaTokenRemover(MultiPackProcessor):
-    r"""A wrapper of non alpha token remover that requires a nltk tokenizer and filepath getter in the
+    r"""A class of non alpha token remover that requires a nltk tokenizer in the
     upstream of the pipeline. The modified text would be added to a new pack.
     """
 
@@ -105,17 +90,25 @@ class NonAlphaTokenRemover(MultiPackProcessor):
         self.out_pack_name = 'result'
 
     def _process(self, input_pack: MultiPack):
+        pack_name_string = input_pack.get_pack(self.in_pack_name).pack_name
+
         token_entries = list(input_pack.get_pack(
             self.in_pack_name).get(entry_type=Token))
         token_texts = [token.text for token in token_entries]
         words = [word for word in token_texts
                  if word.isalpha() or word[:-1].isalpha() or word == '.']
-        filepath = input_pack.get_pack(
-            self.in_pack_name).get_single(entry_type=FilePath)
         pack = input_pack.add_pack(self.out_pack_name)
         result = ' '.join(words)
         pack.set_text(text=result)
-        pack.pack_name = filepath.img_study_path.replace(".txt", "")
+        filepath = FilePath(pack)
+        if pack_name_string is not None:
+            pack_name_string = pack_name_string.replace('.txt', '')
+            pack_name_list = pack_name_string.split('/')
+            pack.pack_name = '_'.join(pack_name_list[-3:])
+            filepath.img_study_path = '/'.join(pack_name_list[-3:])
+        else:
+            pack.pack_name = 'packname'
+            filepath.img_study_path = 'study_path'
 
 
 class MimicReportReader(PlainTextReader):
@@ -124,6 +117,7 @@ class MimicReportReader(PlainTextReader):
     blank string.
 
     """
+
     @staticmethod
     def text_replace_operation(text: str):
         r"""Replace non impression and non findings text with blank string.
@@ -146,7 +140,7 @@ class MimicReportReader(PlainTextReader):
         return replace_list
 
 
-def parse_mimic_reports(dataset_dir: str):
+def parse_mimic_reports(dataset_dir: str, result_dir: str):
     r"""Parse mimic report with tokenizer, lowercase and non-alpha removal to
     generate forte json file with the same name with preprocessed content and
     the span information of impression and findings.
@@ -156,17 +150,14 @@ def parse_mimic_reports(dataset_dir: str):
     pipeline = Pipeline[MultiPack]()
     pipeline.set_reader(MimicReportReader())
     pipeline.add(NLTKWordTokenizer())
-    pipeline.add(FilePathGetter())
     pipeline.add(MultiPackBoxer())
     pipeline.add(NonAlphaTokenRemover())
     pipeline.add(component=FindingsExtractor(),
                  selector=NameMatchSelector(select_name='result'))
     pipeline.add(component=ImpressionExtractor(),
                  selector=NameMatchSelector(select_name='result'))
-    pipeline.add(component=LowerCaserProcessor(),
-                 selector=NameMatchSelector(select_name='result'))
     pipeline.add(PackNameJsonPackWriter(),
-                 {'indent': 2, 'output_dir': '.', 'overwrite': True},
+                 {'indent': 2, 'output_dir': result_dir, 'overwrite': True},
                  NameMatchSelector(select_name='result'))
     pipeline.initialize()
     for idx, pack in enumerate(pipeline.process_dataset(dataset_dir)):
@@ -178,5 +169,7 @@ if __name__ == '__main__':
     PARSER = argparse.ArgumentParser()
     PARSER.add_argument("--data-dir", type=str, default="data/",
                         help="Data directory to read the text files from")
+    PARSER.add_argument("--result-dir", type=str, default="result/",
+                        help="Data directory to save the forte json files to")
     ARGS = PARSER.parse_args()
-    parse_mimic_reports(ARGS.data_dir)
+    parse_mimic_reports(ARGS.data_dir, ARGS.result_dir)

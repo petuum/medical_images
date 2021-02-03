@@ -20,7 +20,7 @@ from forte.pipeline import Pipeline
 from forte.data.readers import StringReader
 from mimic.onto.mimic_ontology import Impression, Findings
 from textdata_reader import FindingsExtractor, ImpressionExtractor,\
-    NonAlphaTokenRemover, FilePathGetter
+    NonAlphaTokenRemover
 from forte.processors.nltk_processors import NLTKWordTokenizer,\
     NLTKSentenceSegmenter
 from forte.data.caster import MultiPackBoxer
@@ -52,20 +52,19 @@ class TestFindingsExtractor(unittest.TestCase):
                      "IMPRESSION No acute cardiopulmonary process."]
         document = ' '.join(sentences)
         findings_sentences = ["There is no focal consolidation "
-                     "pleural effusion or pneumothorax.",
-                     "Bilateral nodular opacities that most likely "
-                     "represent nipple shadows.",
-                     "The cardiomediastinal silhouette is normal.",
-                     "Clips project over the left lung "
-                     "potentially within the breast.",
-                     "The imaged upper abdomen is unremarkable.",
-                     "Chronic deformity of the posterior left "
-                     "sixth and seventh ribs are noted."]
+                              "pleural effusion or pneumothorax.",
+                              "Bilateral nodular opacities that most likely "
+                              "represent nipple shadows.",
+                              "The cardiomediastinal silhouette is normal.",
+                              "Clips project over the left lung "
+                              "potentially within the breast.",
+                              "The imaged upper abdomen is unremarkable.",
+                              "Chronic deformity of the posterior left "
+                              "sixth and seventh ribs are noted."]
         findings_text = ' '.join(findings_sentences)
         pack = self.mimic_pl.process(document)
         for idx, findings in enumerate(pack.get(Findings)):
             self.assertEqual(findings.text, findings_text)
-
 
 
 class TestImpressionExtractor(unittest.TestCase):
@@ -107,17 +106,19 @@ class TestNonAlphaTokenRemover(unittest.TestCase):
         self.mimic_pl.set_reader(StringReader())
         self.mimic_pl.add(NLTKSentenceSegmenter())
         self.mimic_pl.add(NLTKWordTokenizer())
-        self.mimic_pl.add(FilePathGetter())
         self.mimic_pl.add(MultiPackBoxer())
         self.mimic_pl.add(NonAlphaTokenRemover())
         self.mimic_pl.initialize()
 
     def test_cleaner(self):
         sentences = ["Free intraperitoneal air.  ___ was successfully "
-                     "paged to discuss this finding on ___ at 3:10 p.m. at the time of discovery."]
+                     "paged to discuss this finding on ___ at 3:10 p.m. "
+                     "at the time of discovery."]
         document = ' '.join(sentences)
-        nonalpha_token_rm_sentences = ["Free intraperitoneal air. was successfully ",
-                                       "paged to discuss this finding on at pm at the time of discovery."]
+        nonalpha_token_rm_sentences = ["Free intraperitoneal air. was "
+                                       "successfully paged to discuss "
+                                       "this finding on at pm at the "
+                                       "time of discovery."]
 
         rm_text = ' '.join(nonalpha_token_rm_sentences)
         pack = self.mimic_pl.process(document)
