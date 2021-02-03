@@ -18,18 +18,18 @@ of findings and impression part of the text. Tokenize the sentence, lowercase
 all the characters and remove the word contains non-alphabetic characters
 """
 import argparse
+from ft.onto.base_ontology import Token
+from mimic.onto.mimic_ontology import Impression, Findings, FilePath
 from forte.data.data_pack import DataPack
 from forte.processors.base import PackProcessor
 from forte.data.readers import PlainTextReader
 from forte.data.span import Span
 from forte.pipeline import Pipeline
 from forte.processors.nltk_processors import NLTKWordTokenizer
-from mimic.onto.mimic_ontology import Impression, Findings, FilePath
 from forte.data.multi_pack import MultiPack
 from forte.processors.base import MultiPackProcessor
-from forte.data.caster import MultiPackBoxer
-from ft.onto.base_ontology import Token
 from forte.processors.writers import PackNameJsonPackWriter
+from forte.data.caster import MultiPackBoxer
 from forte.data.selector import NameMatchSelector
 
 

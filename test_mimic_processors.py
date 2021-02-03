@@ -15,17 +15,17 @@
 """This module tests mimic processor."""
 
 import unittest
-from forte.data.data_pack import DataPack
-from forte.pipeline import Pipeline
-from forte.data.readers import StringReader
-from mimic.onto.mimic_ontology import Impression, Findings
+from ft.onto.base_ontology import Sentence
 from textdata_reader import FindingsExtractor, ImpressionExtractor,\
     NonAlphaTokenRemover
+from mimic.onto.mimic_ontology import Impression, Findings
+from forte.pipeline import Pipeline
+from forte.data.data_pack import DataPack
+from forte.data.readers import StringReader
+from forte.data.caster import MultiPackBoxer
+from forte.data.multi_pack import MultiPack
 from forte.processors.nltk_processors import NLTKWordTokenizer,\
     NLTKSentenceSegmenter
-from forte.data.caster import MultiPackBoxer
-from ft.onto.base_ontology import Sentence
-from forte.data.multi_pack import MultiPack
 
 
 class TestFindingsExtractor(unittest.TestCase):
