@@ -37,9 +37,6 @@ class FindingsExtractor(PackProcessor):
     r"""A processor to extract the Findings session in the medical report.
     """
 
-    def __init__(self):
-        super().__init__()
-
     def _process(self, input_pack: DataPack):
         findings_ind = input_pack.text.find("FINDINGS")
         impression_ind = input_pack.text.find("IMPRESSION")
@@ -59,9 +56,6 @@ class FindingsExtractor(PackProcessor):
 class ImpressionExtractor(PackProcessor):
     r"""A processor to extract the Impression session in the medical report.
     """
-
-    def __init__(self):
-        super().__init__()
 
     def _process(self, input_pack: DataPack):
         findings_ind = input_pack.text.find("FINDINGS")
