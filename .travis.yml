@@ -16,10 +16,10 @@ install:
   - pip install --progress-bar off torch==$TORCH_VER
   - pip install --progress-bar off .[extras]
   - git clone https://github.com/asyml/forte.git
-  - cd texar-pytorch
+  - cd forte
   - pip install --progress-bar off .
   - cd ..
-  - rm -rf texar-pytorch
+  - rm -rf forte
   - pip install pylint==2.6.0 flake8==3.8.2
   - pip install mypy==0.790
   - pip install pytest==5.1.3
@@ -43,10 +43,10 @@ jobs:
         - pip install --progress-bar off .[extras]
         - pip install --progress-bar off -r docs/requirements.txt
         - git clone https://github.com/asyml/forte.git
-        - cd texar-pytorch
+        - cd forte
         - pip install --progress-bar off .
         - cd ..
-        - rm -rf texar-pytorch
+        - rm -rf forte
       script:
         - cd docs
         - sphinx-build -W -b html -d _build/doctrees . _build/html
