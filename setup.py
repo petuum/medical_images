@@ -26,7 +26,7 @@ setuptools.setup(
         'texar-pytorch >= 0.1.1',
         'typing>=3.7.4;python_version<"3.5"',
         'typing-inspect>=0.6.0',
-        'forte @ https://github.com/asyml/forte.git'
+        'forte'
     ],
     extras_require={
     },
