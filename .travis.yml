@@ -11,7 +11,7 @@ env:
     - TORCH_VER="1.6.0"
 install:
   # Installing pip from master source due to https://github.com/pypa/pip/issues/9215
-  - pip install git+https://github.com/pypa/pip.git
+  - pip install --progress-bar off pip==21.0.1
   #- pip install --upgrade pip
   - pip install --progress-bar off -r requirements.txt
   - pip install --progress-bar off torch==$TORCH_VER
