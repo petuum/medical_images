@@ -16,7 +16,7 @@
 
 import unittest
 from ft.onto.base_ontology import Sentence
-from textdata_reader import FindingsExtractor, ImpressionExtractor,\
+from mimic_textdata_preprocessor import FindingsExtractor, ImpressionExtractor,\
     NonAlphaTokenRemover
 from mimic.onto.mimic_ontology import Impression, Findings
 from forte.pipeline import Pipeline
