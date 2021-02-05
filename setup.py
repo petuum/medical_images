@@ -26,7 +26,8 @@ setuptools.setup(
         'texar-pytorch >= 0.1.1',
         'typing>=3.7.4;python_version<"3.5"',
         'typing-inspect>=0.6.0',
-        'forte'
+        'forte',
+        'nltk >= 3.5'
     ],
     extras_require={
     },
