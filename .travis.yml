@@ -34,24 +34,24 @@ script:
 after_success:
   - codecov
 
-jobs:
-  include:
-    - stage: docs
-      python: '3.7'
-      install:
-        - pip install --upgrade pip
-        - pip install --progress-bar off -r requirements.txt
-        - pip install --progress-bar off .[extras]
-        - pip install --progress-bar off -r docs/requirements.txt
-        - git clone https://github.com/asyml/forte.git
-        - cd forte
-        - pip install --progress-bar off .
-        - cd ..
-        - rm -rf forte
-        - pip install pyenchant
-      script:
-        - cd docs
-        - sphinx-build -W -b html -d _build/doctrees . _build/html
-        - sphinx-build -W -b spelling -d _build/doctrees . _build/spelling
+# jobs:
+#   include:
+#     - stage: docs
+#       python: '3.7'
+#       install:
+#         - pip install --upgrade pip
+#         - pip install --progress-bar off -r requirements.txt
+#         - pip install --progress-bar off .[extras]
+#         - pip install --progress-bar off -r docs/requirements.txt
+#         - git clone https://github.com/asyml/forte.git
+#         - cd forte
+#         - pip install --progress-bar off .
+#         - cd ..
+#         - rm -rf forte
+#         - pip install pyenchant
+#       script:
+#         - cd docs
+#         - sphinx-build -W -b html -d _build/doctrees . _build/html
+#         - sphinx-build -W -b spelling -d _build/doctrees . _build/spelling
 notifications:
   email: false
