@@ -1,0 +1,53 @@
+
+{
+    "name": "iu_xray_ontology",
+    "additional_prefixes": [
+      "iu_xray.onto.iu_xray_ontology"
+    ],
+    "definitions": [
+      {
+        "entry_name": "iu_xray.onto.iu_xray_ontology.Findings",
+        "parent_entry": "forte.data.ontology.top.Generics",
+        "description": "A span based annotation class Findings, used to refer to findings part of the report",
+        "attributes": [
+          {
+            "name": "content",
+            "type": "str"
+          }
+        ]
+      },
+      {
+        "entry_name": "iu_xray.onto.iu_xray_ontology.Impression",
+        "parent_entry": "forte.data.ontology.top.Generics",
+        "description": "A span based annotation class Impression, used to refer to impression part of the report",
+        "attributes": [
+          {
+            "name": "content",
+            "type": "str"
+          }
+        ]
+      },
+      {
+        "entry_name": "iu_xray.onto.iu_xray_ontology.ParentImage",
+        "parent_entry": "forte.data.ontology.top.Generics",
+        "description": "A class ParentImage, used to refer to filepath of the parent images",
+        "attributes": [
+          {
+            "name": "parent_img_path",
+            "type": "str"
+          }
+        ]
+      },
+      {
+        "entry_name": "iu_xray.onto.iu_xray_ontology.FilePath",
+        "parent_entry": "forte.data.ontology.top.Generics",
+        "description": "A class FilePath, used to refer to filepath of the report",
+        "attributes": [
+          {
+            "name": "img_study_path",
+            "type": "str"
+          }
+        ]
+      }
+    ]
+  }
