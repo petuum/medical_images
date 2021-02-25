@@ -136,3 +136,4 @@ tbx_folder/
 *.sh
 resources/
 result/
+*.pth.tar
