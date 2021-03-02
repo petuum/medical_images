@@ -166,7 +166,7 @@ class IUXrayReportReader(PackReader):
         root = tree.getroot()
 
         abs_text_list = []
-        for abs_text in root.find('MedlineCitation/Article/Abstract'):
+        for abs_text in root.find('MedlineCitation/Article/Abstract'): # type: ignore
             if abs_text.attrib['Label'] in ['FINDINGS', 'IMPRESSION']:
                 text = abs_text.text if abs_text.text else ' '
                 content = abs_text.attrib['Label'] + ' ' + text.lower()
@@ -176,10 +176,7 @@ class IUXrayReportReader(PackReader):
             # One image report may consist of more that one
             # parent image (frontal, lateral)
             if node.tag == 'parentImage':
-                try:
-                    file_name = node.find('./panel/url').text
-                except AttributeError:
-                    raise AttributeError
+                file_name = node.find('./panel/url').text # type: ignore
                 text = ' '.join(abs_text_list)
                 pack = DataPack()
                 pack.set_text(text)
