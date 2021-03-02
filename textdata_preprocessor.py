@@ -36,28 +36,7 @@ from forte.data.caster import MultiPackBoxer
 from forte.data.selector import NameMatchSelector
 from forte.data.data_utils_io import dataset_path_iterator
 
-from iu_xray.onto import Impression, Findings, FilePath, ParentImage
-
-
-class ParentImageExtractor(PackProcessor):
-    r"""A processor to extract the path to the parent image
-    in the medical report.
-    """
-
-    def _process(self, input_pack: DataPack):
-        parent_img_ind = input_pack.text.find("PARENTIMAGE")
-        findings_ind = input_pack.text.find("FINDINGS")
-        if parent_img_ind == -1:
-            begin = 0
-            end = 0
-        else:
-            begin = parent_img_ind + len("PARENTIMAGE") + 1
-            if findings_ind != -1 and parent_img_ind < findings_ind:
-                end = findings_ind - 1
-            else:
-                end = len(input_pack.text)
-        parent_img = ParentImage(input_pack, begin, end)
-        parent_img.has_content = (parent_img_ind != -1)
+from iu_xray.onto import Impression, Findings, FilePath
 
 
 class FindingsExtractor(PackProcessor):
@@ -154,7 +133,7 @@ class NonAlphaTokenRemover(MultiPackProcessor):
         filepath = FilePath(pack)
 
         if pack_name_string is not None:
-            pack_name_string = pack_name_string.replace('.png', '')
+            pack_name_string = pack_name_string.replace('.jpg', '')
             pack_name_list = pack_name_string.split('/')
             pack.pack_name = '_'.join(pack_name_list[-1:])
             filepath.img_study_path = '/'.join(pack_name_list[-1:])
@@ -167,10 +146,6 @@ class IUXrayReportReader(PackReader):
     r"""Customized reader for IU Xray report that read xml iteratively
     from the directory.
     """
-    def __init__(self, img_root: str, *args, **kwargs):
-        super().__init__(*args, **kwargs)
-        self.img_root = img_root
-
     def _collect(self, text_directory) -> Iterator[Any]:  # type: ignore
         r"""Should be called with param ``text_directory`` which is a path to a
         folder containing xml files.
@@ -197,55 +172,40 @@ class IUXrayReportReader(PackReader):
                 content = abs_text.attrib['Label'] + ' ' + text.lower()
                 abs_text_list.append(content)
 
-        parent = ['PARENTIMAGE']
         for node in list(root):
             # One image report may consist of more that one
             # parent image (frontal, lateral)
             if node.tag == 'parentImage':
-                # root path existed in the original report
-                old_path = '/hadoop/storage/radiology/extract/'
-
-                old_file_name = node.find('./panel/url').text
-                file_name = old_file_name.replace('.jpg', '.png')
-                # filename here is the current path to the image
-                file_name = file_name.replace(old_path, self.img_root)
-
-                text = ' '.join(parent + [file_name] + abs_text_list)
-
+                file_name = node.find('./panel/url').text
+                text = ' '.join(abs_text_list)
                 pack = DataPack()
                 pack.set_text(text)
 
                 Document(pack, 0, len(pack.text))
-
                 pack.pack_name = file_name
+
                 yield pack
 
-def build_pipeline(
-    result_dir: str,
-    img_root: str,
-):
+def build_pipeline(result_dir: str,):
     r"""Build the pipeline to parse IU Xray report with tokenizer, lowercase and
     non-alpha removal to generate forte json file with the same name with
     preprocessed content and information of impression, findings and path to the
     parent image.
     Args:
         result_dir: the directory to save the forte json files.
-        img_root: the directory to the iu xray image folders.
     Return:
         pipeline: built pipeline to process the xml files
     """
 
     pipeline = Pipeline[MultiPack]()
     pipeline.resource.update(counter=Counter())
-    pipeline.set_reader(IUXrayReportReader(img_root))
+    pipeline.set_reader(IUXrayReportReader())
     pipeline.add(NLTKWordTokenizer())
     pipeline.add(MultiPackBoxer())
     pipeline.add(NonAlphaTokenRemover())
     pipeline.add(component=FindingsExtractor(),
                  selector=NameMatchSelector(select_name='result'))
     pipeline.add(component=ImpressionExtractor(),
-                 selector=NameMatchSelector(select_name='result'))
-    pipeline.add(component=ParentImageExtractor(),
                  selector=NameMatchSelector(select_name='result'))
     pipeline.add(PackNameJsonPackWriter(),
                  {'indent': 2, 'output_dir': result_dir, 'overwrite': True},
@@ -280,13 +240,10 @@ if __name__ == '__main__':
     PARSER.add_argument("--save-vocab-dir", type=str,
                         default="./texar_vocab.txt",
                         help="Directory to save the vocabulary (.txt)")
-    PARSER.add_argument("--img-root", type=str,
-                        default="/home/jiachen.li/iu_xray_images/",
-                        help="Data directory to the iu xray image folders")
 
     ARGS = PARSER.parse_args()
 
-    pl = build_pipeline(ARGS.result_dir, ARGS.img_root)
+    pl = build_pipeline(ARGS.result_dir)
     for idx, _ in enumerate(pl.process_dataset(ARGS.data_dir)):
         if (idx + 1) % 100 == 0:
             print("Processed " + str(idx + 1) + "packs")

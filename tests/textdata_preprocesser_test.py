@@ -19,8 +19,8 @@ import os.path as osp
 import unittest
 from ft.onto.base_ontology import Sentence
 from textdata_preprocessor import FindingsExtractor, ImpressionExtractor,\
-    ParentImageExtractor, NonAlphaTokenRemover, build_pipeline
-from iu_xray.onto import Impression, Findings, ParentImage
+    NonAlphaTokenRemover, build_pipeline
+from iu_xray.onto import Impression, Findings
 from forte.pipeline import Pipeline
 from forte.data.data_pack import DataPack
 from forte.data.readers import StringReader
@@ -28,31 +28,6 @@ from forte.data.caster import MultiPackBoxer
 from forte.data.multi_pack import MultiPack
 from forte.processors.nltk_processors import NLTKWordTokenizer,\
     NLTKSentenceSegmenter
-
-
-class TestParentImageExtractor(unittest.TestCase):
-    r"""
-    Test iu xray processor for report impression section extractor
-    """
-    def setUp(self):
-        self.iu_xray_pl = Pipeline[DataPack]()
-        self.iu_xray_pl.set_reader(StringReader())
-        self.iu_xray_pl.add(ParentImageExtractor())
-        self.iu_xray_pl.initialize()
-
-    def test_extractor(self):
-        sentences = ["PARENTIMAGE /home/jiachen.li/iu_xray_images/CXR5_IM-2117-1003002.png "
-                     "FINDINGS The cardiomediastinal silhouette and pulmonary vasculature "
-                     "are within normal limits. There is no pneumothorax or pleural effusion. "
-                     "There are no focal areas of consolidation. Cholecystectomy clips are present. "
-                     "Small osteophytes. There is biapical pleural thickening unchanged from prior. "
-                     "Mildly hyperexpanded lungs. IMPRESSION No acute cardiopulmonary abnormality."]
-        document = ''.join(sentences)
-        parent_image_sentences = ["/home/jiachen.li/iu_xray_images/CXR5_IM-2117-1003002.png"]
-        parent_image_text = ''.join(parent_image_sentences)
-        pack = self.iu_xray_pl.process(document)
-        for idx, parent_image in enumerate(pack.get(ParentImage)):
-            self.assertEqual(parent_image.text, parent_image_text)
 
 
 class TestFindingsExtractor(unittest.TestCase):
@@ -66,8 +41,7 @@ class TestFindingsExtractor(unittest.TestCase):
         self.iu_xray_pl.initialize()
 
     def test_extractor(self):
-        sentences = ["PARENTIMAGE /home/jiachen.li/iu_xray_images/CXR5_IM-2117-1003002.png "
-                     "FINDINGS The cardiomediastinal silhouette and pulmonary vasculature "
+        sentences = ["FINDINGS The cardiomediastinal silhouette and pulmonary vasculature "
                      "are within normal limits. There is no pneumothorax or pleural effusion. "
                      "There are no focal areas of consolidation. Cholecystectomy clips are present. "
                      "Small osteophytes. There is biapical pleural thickening unchanged from prior. "
@@ -95,8 +69,7 @@ class TestImpressionExtractor(unittest.TestCase):
         self.iu_xray_pl.initialize()
 
     def test_extractor(self):
-        sentences = ["PARENTIMAGE /home/jiachen.li/iu_xray_images/CXR5_IM-2117-1003002.png "
-                     "FINDINGS The cardiomediastinal silhouette and pulmonary vasculature "
+        sentences = ["FINDINGS The cardiomediastinal silhouette and pulmonary vasculature "
                      "are within normal limits. There is no pneumothorax or pleural effusion. "
                      "There are no focal areas of consolidation. Cholecystectomy clips are present. "
                      "Small osteophytes. There is biapical pleural thickening unchanged from prior. "
@@ -144,10 +117,7 @@ class TestBuildPipeline(unittest.TestCase):
     """
     def setUp(self):
         self.result_dir = 'tests/test_xml/generated_xml'
-        self.img_root = '/home/jiachen.li/iu_xray_images/'
-        self.iu_xray_pl = build_pipeline(
-            self.result_dir,
-            self.img_root)
+        self.iu_xray_pl = build_pipeline(self.result_dir)
 
         self.ground_truth_findings = ''.join([
             'the lungs and pleural spaces show no acute abnormality. '
@@ -157,7 +127,6 @@ class TestBuildPipeline(unittest.TestCase):
         self.ground_truth_impression = 'no acute pulmonary abnormality.'
 
     def test_pipeline(self):
-        # Generate the .json files
         for _ in self.iu_xray_pl.process_dataset('tests/test_xml'):
             pass
 
@@ -165,13 +134,11 @@ class TestBuildPipeline(unittest.TestCase):
             self.assertIn(filename, ['CXR333_IM-1594-1001.json', 'CXR333_IM-1594-2001.json'])
             with open(osp.join(self.result_dir, filename), 'r') as f:
                 items = list(DataPack.deserialize(f.read()))
+                # print(DataPack.deserialize(f.read()).get('Findings'))
                 key = filename.replace('.json', '')
-                self.assertEqual(items[3].img_study_path, key)
-                self.assertEqual(items[1].text, self.ground_truth_findings)
-                self.assertEqual(items[2].text, self.ground_truth_impression)
-                self.assertEqual(
-                    items[0].text,
-                    osp.join(self.img_root, key + '.png'))
+                self.assertEqual(items[0].text, self.ground_truth_findings)
+                self.assertEqual(items[1].text, self.ground_truth_impression)
+                self.assertEqual(items[2].img_study_path, key)
                 f.close()
 
 

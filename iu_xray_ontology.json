@@ -28,17 +28,6 @@
       ]
     },
     {
-      "entry_name": "iu_xray.onto.ParentImage",
-      "parent_entry": "forte.data.ontology.top.Annotation",
-      "description": "A span based annotation class ParentImage, used to refer to filepath of the parent images",
-      "attributes": [
-        {
-          "name": "has_content",
-          "type": "bool"
-        }
-      ]
-    },
-    {
       "entry_name": "iu_xray.onto.FilePath",
       "parent_entry": "forte.data.ontology.top.Generics",
       "description": "A class FilePath, used to refer to filepath of the report",

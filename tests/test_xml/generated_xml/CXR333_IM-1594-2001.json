@@ -11,11 +11,6 @@
         "py/set": [
           2
         ]
-      },
-      "textdata_preprocessor.ParentImageExtractor": {
-        "py/set": [
-          3
-        ]
       }
     },
     "_field_records": {
@@ -38,16 +33,6 @@
             ]
           }
         ]
-      },
-      "textdata_preprocessor.ParentImageExtractor": {
-        "py/set": [
-          {
-            "py/tuple": [
-              3,
-              "has_content"
-            ]
-          }
-        ]
       }
     },
     "links": [],
@@ -56,32 +41,20 @@
       "py/object": "forte.data.data_pack.Meta",
       "py/state": {
         "pack_name": "CXR333_IM-1594-2001",
-        "_pack_id": 271715597225281756666636865641133529693,
+        "_pack_id": 178370891552291655293097402105493705077,
         "language": "eng",
         "span_unit": "character"
       }
     },
-    "_text": "PARENTIMAGE /home/jiachen.li/iu_xray_images/CXR333_IM-1594-2001.png FINDINGS the lungs and pleural spaces show no acute abnormality. lungs are mildly hyperexpanded. heart size and pulmonary vascularity within normal limits. IMPRESSION no acute pulmonary abnormality.",
+    "_text": "FINDINGS the lungs and pleural spaces show no acute abnormality. lungs are mildly hyperexpanded. heart size and pulmonary vascularity within normal limits. IMPRESSION no acute pulmonary abnormality.",
     "annotations": [
-      {
-        "py/object": "iu_xray.onto.ParentImage",
-        "py/state": {
-          "_span": {
-            "py/object": "forte.data.span.Span",
-            "begin": 12,
-            "end": 67
-          },
-          "_tid": 3,
-          "has_content": true
-        }
-      },
       {
         "py/object": "iu_xray.onto.Findings",
         "py/state": {
           "_span": {
             "py/object": "forte.data.span.Span",
-            "begin": 77,
-            "end": 223
+            "begin": 9,
+            "end": 155
           },
           "_tid": 1,
           "has_content": true
@@ -92,8 +65,8 @@
         "py/state": {
           "_span": {
             "py/object": "forte.data.span.Span",
-            "begin": 235,
-            "end": 266
+            "begin": 167,
+            "end": 198
           },
           "_tid": 2,
           "has_content": true
@@ -111,9 +84,9 @@
     ],
     "_DataPack__replace_back_operations": [],
     "_DataPack__processed_original_spans": [],
-    "_DataPack__orig_text_len": 266,
+    "_DataPack__orig_text_len": 198,
     "serialization": {
-      "next_id": 4
+      "next_id": 3
     }
   }
 }

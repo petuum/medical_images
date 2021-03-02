@@ -16,7 +16,6 @@ from typing import Optional
 __all__ = [
     "Findings",
     "Impression",
-    "ParentImage",
     "FilePath",
 ]
 
@@ -40,21 +39,6 @@ class Findings(Annotation):
 class Impression(Annotation):
     """
     A span based annotation class Impression, used to refer to impression part of the report
-    Attributes:
-        has_content (Optional[bool])
-    """
-
-    has_content: Optional[bool]
-
-    def __init__(self, pack: DataPack, begin: int, end: int):
-        super().__init__(pack, begin, end)
-        self.has_content: Optional[bool] = None
-
-
-@dataclass
-class ParentImage(Annotation):
-    """
-    A span based annotation class ParentImage, used to refer to filepath of the parent images
     Attributes:
         has_content (Optional[bool])
     """
