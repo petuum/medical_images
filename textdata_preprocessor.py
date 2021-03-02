@@ -166,7 +166,8 @@ class IUXrayReportReader(PackReader):
         root = tree.getroot()
 
         abs_text_list = []
-        for abs_text in root.find('MedlineCitation/Article/Abstract'): # type: ignore
+        to_find = 'MedlineCitation/Article/Abstract'
+        for abs_text in root.find(to_find): # type: ignore
             if abs_text.attrib['Label'] in ['FINDINGS', 'IMPRESSION']:
                 text = abs_text.text if abs_text.text else ' '
                 content = abs_text.attrib['Label'] + ' ' + text.lower()
