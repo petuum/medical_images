@@ -20,7 +20,7 @@ import unittest
 from ft.onto.base_ontology import Sentence
 from textdata_preprocessor import FindingsExtractor, ImpressionExtractor,\
     ParentImageExtractor, NonAlphaTokenRemover, build_pipeline
-from iu_xray.onto.iu_xray_ontology import Impression, Findings, ParentImage
+from iu_xray.onto import Impression, Findings, ParentImage
 from forte.pipeline import Pipeline
 from forte.data.data_pack import DataPack
 from forte.data.readers import StringReader
@@ -52,7 +52,7 @@ class TestParentImageExtractor(unittest.TestCase):
         parent_image_text = ''.join(parent_image_sentences)
         pack = self.iu_xray_pl.process(document)
         for idx, parent_image in enumerate(pack.get(ParentImage)):
-            self.assertEqual(parent_image.parent_img_path, parent_image_text)
+            self.assertEqual(parent_image.text, parent_image_text)
 
 
 class TestFindingsExtractor(unittest.TestCase):
@@ -81,7 +81,7 @@ class TestFindingsExtractor(unittest.TestCase):
         findings_text = ''.join(findings_sentences)
         pack = self.iu_xray_pl.process(document)
         for idx, findings in enumerate(pack.get(Findings)):
-            self.assertEqual(findings.content, findings_text)
+            self.assertEqual(findings.text, findings_text)
 
 
 class TestImpressionExtractor(unittest.TestCase):
@@ -106,7 +106,7 @@ class TestImpressionExtractor(unittest.TestCase):
         impression_text = ''.join(impression_sentences)
         pack = self.iu_xray_pl.process(document)
         for idx, impression in enumerate(pack.get(Impression)):
-            self.assertEqual(impression.content, impression_text)
+            self.assertEqual(impression.text, impression_text)
 
 
 class TestNonAlphaTokenRemover(unittest.TestCase):
@@ -157,20 +157,20 @@ class TestBuildPipeline(unittest.TestCase):
         self.ground_truth_impression = 'no acute pulmonary abnormality.'
 
     def test_pipeline(self):
+        # Generate the .json files
         for _ in self.iu_xray_pl.process_dataset('tests/test_xml'):
-            print('Generated file!')
+            pass
 
         for i, filename in enumerate(os.listdir(self.result_dir)):
             self.assertIn(filename, ['CXR333_IM-1594-1001.json', 'CXR333_IM-1594-2001.json'])
             with open(osp.join(self.result_dir, filename), 'r') as f:
                 items = list(DataPack.deserialize(f.read()))
-
                 key = filename.replace('.json', '')
-                self.assertEqual(items[0].img_study_path, key)
-                self.assertEqual(items[1].content, self.ground_truth_findings)
-                self.assertEqual(items[2].content, self.ground_truth_impression)
+                self.assertEqual(items[3].img_study_path, key)
+                self.assertEqual(items[1].text, self.ground_truth_findings)
+                self.assertEqual(items[2].text, self.ground_truth_impression)
                 self.assertEqual(
-                    items[3].parent_img_path,
+                    items[0].text,
                     osp.join(self.img_root, key + '.png'))
                 f.close()
 

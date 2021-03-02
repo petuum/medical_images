@@ -24,7 +24,7 @@
           {
             "py/tuple": [
               1,
-              "content"
+              "has_content"
             ]
           }
         ]
@@ -34,7 +34,7 @@
           {
             "py/tuple": [
               2,
-              "content"
+              "has_content"
             ]
           }
         ]
@@ -44,7 +44,7 @@
           {
             "py/tuple": [
               3,
-              "parent_img_path"
+              "has_content"
             ]
           }
         ]
@@ -56,40 +56,56 @@
       "py/object": "forte.data.data_pack.Meta",
       "py/state": {
         "pack_name": "CXR333_IM-1594-2001",
-        "_pack_id": 310180649543663110807016525531264637244,
+        "_pack_id": 271715597225281756666636865641133529693,
         "language": "eng",
         "span_unit": "character"
       }
     },
     "_text": "PARENTIMAGE /home/jiachen.li/iu_xray_images/CXR333_IM-1594-2001.png FINDINGS the lungs and pleural spaces show no acute abnormality. lungs are mildly hyperexpanded. heart size and pulmonary vascularity within normal limits. IMPRESSION no acute pulmonary abnormality.",
-    "annotations": [],
+    "annotations": [
+      {
+        "py/object": "iu_xray.onto.ParentImage",
+        "py/state": {
+          "_span": {
+            "py/object": "forte.data.span.Span",
+            "begin": 12,
+            "end": 67
+          },
+          "_tid": 3,
+          "has_content": true
+        }
+      },
+      {
+        "py/object": "iu_xray.onto.Findings",
+        "py/state": {
+          "_span": {
+            "py/object": "forte.data.span.Span",
+            "begin": 77,
+            "end": 223
+          },
+          "_tid": 1,
+          "has_content": true
+        }
+      },
+      {
+        "py/object": "iu_xray.onto.Impression",
+        "py/state": {
+          "_span": {
+            "py/object": "forte.data.span.Span",
+            "begin": 235,
+            "end": 266
+          },
+          "_tid": 2,
+          "has_content": true
+        }
+      }
+    ],
     "generics": [
       {
-        "py/object": "iu_xray.onto.iu_xray_ontology.FilePath",
+        "py/object": "iu_xray.onto.FilePath",
         "py/state": {
           "_tid": 0,
           "img_study_path": "CXR333_IM-1594-2001"
-        }
-      },
-      {
-        "py/object": "iu_xray.onto.iu_xray_ontology.Findings",
-        "py/state": {
-          "_tid": 1,
-          "content": "the lungs and pleural spaces show no acute abnormality. lungs are mildly hyperexpanded. heart size and pulmonary vascularity within normal limits."
-        }
-      },
-      {
-        "py/object": "iu_xray.onto.iu_xray_ontology.Impression",
-        "py/state": {
-          "_tid": 2,
-          "content": "no acute pulmonary abnormality."
-        }
-      },
-      {
-        "py/object": "iu_xray.onto.iu_xray_ontology.ParentImage",
-        "py/state": {
-          "_tid": 3,
-          "parent_img_path": "/home/jiachen.li/iu_xray_images/CXR333_IM-1594-2001.png"
         }
       }
     ],

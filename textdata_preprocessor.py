@@ -36,11 +36,7 @@ from forte.data.caster import MultiPackBoxer
 from forte.data.selector import NameMatchSelector
 from forte.data.data_utils_io import dataset_path_iterator
 
-from iu_xray.onto.iu_xray_ontology import Impression, Findings, \
-    FilePath, ParentImage
-
-
-counter = Counter()
+from iu_xray.onto import Impression, Findings, FilePath, ParentImage
 
 
 class ParentImageExtractor(PackProcessor):
@@ -60,10 +56,8 @@ class ParentImageExtractor(PackProcessor):
                 end = findings_ind - 1
             else:
                 end = len(input_pack.text)
-        parent_img = ParentImage(input_pack)
-
-        if parent_img_ind != -1:
-            parent_img.parent_img_path = input_pack.text[begin: end]
+        parent_img = ParentImage(input_pack, begin, end)
+        parent_img.has_content = (parent_img_ind != -1)
 
 
 class FindingsExtractor(PackProcessor):
@@ -82,11 +76,19 @@ class FindingsExtractor(PackProcessor):
                 end = impression_ind - 1
             else:
                 end = len(input_pack.text)
-        findings = Findings(input_pack)
-        if end - begin > 0:
-            text = input_pack.text[begin: end].replace(',', '')
-            findings.content = text
-            counter.update(text.replace('.', '').split(' '))
+
+        if end > begin:
+            findings = Findings(input_pack, begin, end)
+            findings.has_content = True
+        else:
+            findings = Findings(input_pack, end, end)
+            findings.has_content = False
+
+        counter = self.resources.get('counter')
+        if findings.has_content and counter is not None:
+            # Update the vocabulary counter
+            text = input_pack.text[begin: end].replace(',', '').replace('.', '')
+            counter.update(text.split(' '))
 
 
 class ImpressionExtractor(PackProcessor):
@@ -105,11 +107,19 @@ class ImpressionExtractor(PackProcessor):
                 end = findings_ind - 1
             else:
                 end = len(input_pack.text)
-        impression = Impression(input_pack)
-        if end - begin > 0:
-            text = input_pack.text[begin: end].replace(',', '')
-            impression.content = text
-            counter.update(text.replace('.', '').split(' '))
+
+        if end > begin:
+            impression = Impression(input_pack, begin, end)
+            impression.has_content = True
+        else:
+            impression = Impression(input_pack, end, end)
+            impression.has_content = False
+
+        counter = self.resources.get('counter')
+        if impression.has_content and counter is not None:
+            # Update the vocabulary counter
+            text = input_pack.text[begin: end].replace(',', '').replace('.', '')
+            counter.update(text.split(' '))
 
 
 class NonAlphaTokenRemover(MultiPackProcessor):
@@ -226,6 +236,7 @@ def build_pipeline(
     """
 
     pipeline = Pipeline[MultiPack]()
+    pipeline.resource.update(counter=Counter())
     pipeline.set_reader(IUXrayReportReader(img_root))
     pipeline.add(NLTKWordTokenizer())
     pipeline.add(MultiPackBoxer())
@@ -243,7 +254,7 @@ def build_pipeline(
 
     return pipeline
 
-def bulid_vocab(save_vocab_dir: str):
+def bulid_vocab(counter, save_vocab_dir: str):
     r"""Build the vocabulary using the top 1000 frequent words as per the paper
     Args:
         save_vocab_dir: the directory to to save the vocabulary (.txt).
@@ -263,7 +274,8 @@ if __name__ == '__main__':
     PARSER.add_argument("--data-dir", type=str,
                         default="/data/jiachen.li/iu_xray/ecgen-radiology/",
                         help="Data directory to read the xml files from")
-    PARSER.add_argument("--result-dir", type=str, default="text_root/",
+    PARSER.add_argument("--result-dir", type=str,
+                        default="/home/jiachen.li/text_root/",
                         help="Data directory to save the forte json files to")
     PARSER.add_argument("--save-vocab-dir", type=str,
                         default="./texar_vocab.txt",
@@ -279,4 +291,5 @@ if __name__ == '__main__':
         if (idx + 1) % 100 == 0:
             print("Processed " + str(idx + 1) + "packs")
 
-    bulid_vocab(ARGS.save_vocab_dir)
+    word_counter = pl.resource.get('counter')
+    bulid_vocab(word_counter, ARGS.save_vocab_dir)

@@ -128,6 +128,9 @@ dmypy.json
 # Pyre type checker
 .pyre/
 
+# vscode
+.vscode
+
 #experiments
 exp_default/
 output_default/
@@ -137,3 +140,4 @@ tbx_folder/
 resources/
 result/
 *.pth.tar
+texar_vocab.txt

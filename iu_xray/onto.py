@@ -1,5 +1,5 @@
 # ***automatically_generated***
-# ***source json:../../../../../../medical_images_iu_xray/iu_xray_ontology.json***
+# ***source json:../../../../../../petuum-med/medical_images/iu_xray_ontology.json***
 # flake8: noqa
 # mypy: ignore-errors
 # pylint: skip-file
@@ -9,6 +9,7 @@ Automatically generated ontology iu_xray_ontology. Do not change manually.
 
 from dataclasses import dataclass
 from forte.data.data_pack import DataPack
+from forte.data.ontology.top import Annotation
 from forte.data.ontology.top import Generics
 from typing import Optional
 
@@ -21,48 +22,48 @@ __all__ = [
 
 
 @dataclass
-class Findings(Generics):
+class Findings(Annotation):
     """
     A span based annotation class Findings, used to refer to findings part of the report
     Attributes:
-        content (Optional[str])
+        has_content (Optional[bool])
     """
 
-    content: Optional[str]
+    has_content: Optional[bool]
 
-    def __init__(self, pack: DataPack):
-        super().__init__(pack)
-        self.content: Optional[str] = None
+    def __init__(self, pack: DataPack, begin: int, end: int):
+        super().__init__(pack, begin, end)
+        self.has_content: Optional[bool] = None
 
 
 @dataclass
-class Impression(Generics):
+class Impression(Annotation):
     """
     A span based annotation class Impression, used to refer to impression part of the report
     Attributes:
-        content (Optional[str])
+        has_content (Optional[bool])
     """
 
-    content: Optional[str]
+    has_content: Optional[bool]
 
-    def __init__(self, pack: DataPack):
-        super().__init__(pack)
-        self.content: Optional[str] = None
+    def __init__(self, pack: DataPack, begin: int, end: int):
+        super().__init__(pack, begin, end)
+        self.has_content: Optional[bool] = None
 
 
 @dataclass
-class ParentImage(Generics):
+class ParentImage(Annotation):
     """
-    A class ParentImage, used to refer to filepath of the parent images
+    A span based annotation class ParentImage, used to refer to filepath of the parent images
     Attributes:
-        parent_img_path (Optional[str])
+        has_content (Optional[bool])
     """
 
-    parent_img_path: Optional[str]
+    has_content: Optional[bool]
 
-    def __init__(self, pack: DataPack):
-        super().__init__(pack)
-        self.parent_img_path: Optional[str] = None
+    def __init__(self, pack: DataPack, begin: int, end: int):
+        super().__init__(pack, begin, end)
+        self.has_content: Optional[bool] = None
 
 
 @dataclass
