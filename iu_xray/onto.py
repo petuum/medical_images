@@ -9,7 +9,6 @@ Automatically generated ontology iu_xray_ontology. Do not change manually.
 
 from dataclasses import dataclass
 from forte.data.data_pack import DataPack
-from forte.data.ontology.top import Annotation
 from forte.data.ontology.top import Generics
 from typing import Optional
 
@@ -21,33 +20,33 @@ __all__ = [
 
 
 @dataclass
-class Findings(Annotation):
+class Findings(Generics):
     """
-    A span based annotation class Findings, used to refer to findings part of the report
+    A Generics class Findings, used to refer to findings part of the report
     Attributes:
-        has_content (Optional[bool])
+        content (Optional[str])
     """
 
-    has_content: Optional[bool]
+    content: Optional[str]
 
-    def __init__(self, pack: DataPack, begin: int, end: int):
-        super().__init__(pack, begin, end)
-        self.has_content: Optional[bool] = None
+    def __init__(self, pack: DataPack):
+        super().__init__(pack)
+        self.content: Optional[str] = None
 
 
 @dataclass
-class Impression(Annotation):
+class Impression(Generics):
     """
-    A span based annotation class Impression, used to refer to impression part of the report
+    A Generics class Impression, used to refer to impression part of the report
     Attributes:
-        has_content (Optional[bool])
+        content (Optional[str])
     """
 
-    has_content: Optional[bool]
+    content: Optional[str]
 
-    def __init__(self, pack: DataPack, begin: int, end: int):
-        super().__init__(pack, begin, end)
-        self.has_content: Optional[bool] = None
+    def __init__(self, pack: DataPack):
+        super().__init__(pack)
+        self.content: Optional[str] = None
 
 
 @dataclass

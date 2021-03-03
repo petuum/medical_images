@@ -23,14 +23,10 @@ import argparse
 import xml.etree.ElementTree as ET
 from collections import Counter
 
-from ft.onto.base_ontology import Token, Document
 from forte.data.data_pack import DataPack
-from forte.processors.base import PackProcessor
 from forte.data.readers.base_reader import PackReader
 from forte.pipeline import Pipeline
-from forte.processors.nltk_processors import NLTKWordTokenizer
 from forte.data.multi_pack import MultiPack
-from forte.processors.base import MultiPackProcessor
 from forte.processors.writers import PackNameJsonPackWriter
 from forte.data.caster import MultiPackBoxer
 from forte.data.selector import NameMatchSelector
@@ -39,112 +35,10 @@ from forte.data.data_utils_io import dataset_path_iterator
 from iu_xray.onto import Impression, Findings, FilePath
 
 
-class FindingsExtractor(PackProcessor):
-    r"""A processor to extract the Findings session in the medical report.
-    """
-
-    def _process(self, input_pack: DataPack):
-        findings_ind = input_pack.text.find("FINDINGS")
-        impression_ind = input_pack.text.find("IMPRESSION")
-        if findings_ind == -1:
-            begin = 0
-            end = 0
-        else:
-            begin = findings_ind + len("FINDINGS") + 1
-            if impression_ind != -1 and findings_ind < impression_ind:
-                end = impression_ind - 1
-            else:
-                end = len(input_pack.text)
-
-        if end > begin:
-            findings = Findings(input_pack, begin, end)
-            findings.has_content = True
-        else:
-            findings = Findings(input_pack, end, end)
-            findings.has_content = False
-
-        counter = self.resources.get('counter')
-        if findings.has_content and counter is not None:
-            # Update the vocabulary counter
-            text = input_pack.text[begin: end].replace(',', '').replace('.', '')
-            counter.update(text.split(' '))
-
-
-class ImpressionExtractor(PackProcessor):
-    r"""A processor to extract the Impression session in the medical report.
-    """
-
-    def _process(self, input_pack: DataPack):
-        findings_ind = input_pack.text.find("FINDINGS")
-        impression_ind = input_pack.text.find("IMPRESSION")
-        if impression_ind == -1:
-            begin = 0
-            end = 0
-        else:
-            begin = impression_ind + len("IMPRESSION") + 1
-            if findings_ind != -1 and impression_ind < findings_ind:
-                end = findings_ind - 1
-            else:
-                end = len(input_pack.text)
-
-        if end > begin:
-            impression = Impression(input_pack, begin, end)
-            impression.has_content = True
-        else:
-            impression = Impression(input_pack, end, end)
-            impression.has_content = False
-
-        counter = self.resources.get('counter')
-        if impression.has_content and counter is not None:
-            # Update the vocabulary counter
-            text = input_pack.text[begin: end].replace(',', '').replace('.', '')
-            counter.update(text.split(' '))
-
-
-class NonAlphaTokenRemover(MultiPackProcessor):
-    r"""A class of non alpha token remover that requires a nltk tokenizer in the
-    upstream of the pipeline. The modified text would be added to a new pack.
-    """
-
-    def __init__(self):
-        super().__init__()
-        self.in_pack_name = 'default'
-        self.out_pack_name = 'result'
-
-    def _process(self, input_pack: MultiPack):
-        pack_name_string = input_pack.get_pack(self.in_pack_name).pack_name
-
-        token_entries = list(input_pack.get_pack(
-            self.in_pack_name).get(entry_type=Token))
-        token_texts = [token.text for token in token_entries]
-        words = [word for word in token_texts
-                 if word.isalpha() or word[:-1].isalpha()
-                 or word == '.' or osp.isfile(word)]
-
-        if words[-1] == '.':
-            # Combine the last '.' with the final word
-            words = words[:-1]
-            words[-1] += '.'
-
-        pack = input_pack.add_pack(self.out_pack_name)
-        result = ' '.join(words)
-
-        pack.set_text(text=result)
-        filepath = FilePath(pack)
-
-        if pack_name_string is not None:
-            pack_name_string = pack_name_string.replace('.jpg', '')
-            pack_name_list = pack_name_string.split('/')
-            pack.pack_name = '_'.join(pack_name_list[-1:])
-            filepath.img_study_path = '/'.join(pack_name_list[-1:])
-        else:
-            pack.pack_name = 'packname'
-            filepath.img_study_path = 'study_path'
-
-
 class IUXrayReportReader(PackReader):
     r"""Customized reader for IU Xray report that read xml iteratively
-    from the directory.
+    from the directory. Extract Findings and Impression from the reports.
+    Remove all non-alpha tokens.
     """
     def _collect(self, text_directory) -> Iterator[Any]:
         r"""Should be called with param ``text_directory`` which is a path to a
@@ -165,25 +59,48 @@ class IUXrayReportReader(PackReader):
         tree = ET.parse(file_path)
         root = tree.getroot()
 
-        abs_text_list = []
+        extracted = {'FINDINGS': None, 'IMPRESSION': None}
         to_find = 'MedlineCitation/Article/Abstract'
         for abs_text in root.find(to_find): # type: ignore
-            if abs_text.attrib['Label'] in ['FINDINGS', 'IMPRESSION']:
-                text = abs_text.text if abs_text.text else ' '
-                content = abs_text.attrib['Label'] + ' ' + text.lower()
-                abs_text_list.append(content)
+            label = abs_text.attrib['Label']
+            if label in ['FINDINGS', 'IMPRESSION']:
+                if abs_text.text is not None:
+                    text = abs_text.text
+                    text = text.replace(',', '')
+                    text = [w for w in text.split()
+                            if w.isalpha() or w[:-1].isalpha()
+                            or w == '.']
+
+                    text = ' '.join(text).lower()
+                    extracted[label] = text
+                else:
+                    print(file_path)
+                    exit()
 
         for node in list(root):
             # One image report may consist of more that one
             # parent image (frontal, lateral)
             if node.tag == 'parentImage':
-                file_name = node.find('./panel/url').text # type: ignore
-                text = ' '.join(abs_text_list)
-                pack = DataPack()
-                pack.set_text(text)
+                try:
+                    file_name = node.find('./panel/url').text # type: ignore
+                except AttributeError:
+                    msg = 'Cannot find the corresponding parent image'
+                    raise ValueError(msg)
 
-                Document(pack, 0, len(pack.text))
-                pack.pack_name = file_name
+                pack = DataPack()
+                # Findings
+                findings = Findings(pack)
+                findings.content = extracted['FINDINGS']
+                # Impression
+                impression = Impression(pack)
+                impression.content = extracted['IMPRESSION']
+                # FilePath
+                filepath = FilePath(pack)
+
+                pack_name_string = file_name.replace('.jpg', '')
+                pack_name_list = pack_name_string.split('/')
+                pack.pack_name = '_'.join(pack_name_list[-1:])
+                filepath.img_study_path = '/'.join(pack_name_list[-1:])
 
                 yield pack
 
@@ -201,16 +118,10 @@ def build_pipeline(result_dir: str,):
     pipeline = Pipeline[MultiPack]()
     pipeline.resource.update(counter=Counter())
     pipeline.set_reader(IUXrayReportReader())
-    pipeline.add(NLTKWordTokenizer())
     pipeline.add(MultiPackBoxer())
-    pipeline.add(NonAlphaTokenRemover())
-    pipeline.add(component=FindingsExtractor(),
-                 selector=NameMatchSelector(select_name='result'))
-    pipeline.add(component=ImpressionExtractor(),
-                 selector=NameMatchSelector(select_name='result'))
     pipeline.add(PackNameJsonPackWriter(),
                  {'indent': 2, 'output_dir': result_dir, 'overwrite': True},
-                 NameMatchSelector(select_name='result'))
+                 NameMatchSelector(select_name='default'))
     pipeline.initialize()
 
     return pipeline

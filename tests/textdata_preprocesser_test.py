@@ -17,98 +17,8 @@
 import os
 import os.path as osp
 import unittest
-from ft.onto.base_ontology import Sentence
-from textdata_preprocessor import FindingsExtractor, ImpressionExtractor,\
-    NonAlphaTokenRemover, build_pipeline
-from iu_xray.onto import Impression, Findings
-from forte.pipeline import Pipeline
+from textdata_preprocessor import build_pipeline
 from forte.data.data_pack import DataPack
-from forte.data.readers import StringReader
-from forte.data.caster import MultiPackBoxer
-from forte.data.multi_pack import MultiPack
-from forte.processors.nltk_processors import NLTKWordTokenizer,\
-    NLTKSentenceSegmenter
-
-
-class TestFindingsExtractor(unittest.TestCase):
-    r"""
-    Test iu xray processor for report findings section extractor
-    """
-    def setUp(self):
-        self.iu_xray_pl = Pipeline[DataPack]()
-        self.iu_xray_pl.set_reader(StringReader())
-        self.iu_xray_pl.add(FindingsExtractor())
-        self.iu_xray_pl.initialize()
-
-    def test_extractor(self):
-        sentences = ["FINDINGS The cardiomediastinal silhouette and pulmonary vasculature "
-                     "are within normal limits. There is no pneumothorax or pleural effusion. "
-                     "There are no focal areas of consolidation. Cholecystectomy clips are present. "
-                     "Small osteophytes. There is biapical pleural thickening unchanged from prior. "
-                     "Mildly hyperexpanded lungs. IMPRESSION No acute cardiopulmonary abnormality."]
-        document = ''.join(sentences)
-        findings_sentences = ["The cardiomediastinal silhouette and pulmonary vasculature "
-                              "are within normal limits. There is no pneumothorax or pleural effusion. ",
-                              "There are no focal areas of consolidation. Cholecystectomy clips are present. "
-                              "Small osteophytes. There is biapical pleural thickening unchanged from prior. "
-                              "Mildly hyperexpanded lungs."]
-        findings_text = ''.join(findings_sentences)
-        pack = self.iu_xray_pl.process(document)
-        for idx, findings in enumerate(pack.get(Findings)):
-            self.assertEqual(findings.text, findings_text)
-
-
-class TestImpressionExtractor(unittest.TestCase):
-    r"""
-    Test iu xray processor for report impression section extractor
-    """
-    def setUp(self):
-        self.iu_xray_pl = Pipeline[DataPack]()
-        self.iu_xray_pl.set_reader(StringReader())
-        self.iu_xray_pl.add(ImpressionExtractor())
-        self.iu_xray_pl.initialize()
-
-    def test_extractor(self):
-        sentences = ["FINDINGS The cardiomediastinal silhouette and pulmonary vasculature "
-                     "are within normal limits. There is no pneumothorax or pleural effusion. "
-                     "There are no focal areas of consolidation. Cholecystectomy clips are present. "
-                     "Small osteophytes. There is biapical pleural thickening unchanged from prior. "
-                     "Mildly hyperexpanded lungs. IMPRESSION No acute cardiopulmonary abnormality."]
-        document = ''.join(sentences)
-        impression_sentences = ["No acute cardiopulmonary abnormality."]
-        impression_text = ''.join(impression_sentences)
-        pack = self.iu_xray_pl.process(document)
-        for idx, impression in enumerate(pack.get(Impression)):
-            self.assertEqual(impression.text, impression_text)
-
-
-class TestNonAlphaTokenRemover(unittest.TestCase):
-    r"""
-    Test iu xray processor for non alpha token removal in content
-    """
-    def setUp(self):
-        self.iu_xray_pl = Pipeline[MultiPack]()
-        self.iu_xray_pl.set_reader(StringReader())
-        self.iu_xray_pl.add(NLTKSentenceSegmenter())
-        self.iu_xray_pl.add(NLTKWordTokenizer())
-        self.iu_xray_pl.add(MultiPackBoxer())
-        self.iu_xray_pl.add(NonAlphaTokenRemover())
-        self.iu_xray_pl.initialize()
-
-    def test_cleaner(self):
-        sentences = ["Free intraperitoneal air.  ___ was successfully "
-                     "paged to discuss this finding on ___ at 3:10 p.m. "
-                     "at the time of discovery."]
-        document = ' '.join(sentences)
-        nonalpha_token_rm_sentences = ["Free intraperitoneal air. was "
-                                       "successfully paged to discuss "
-                                       "this finding on at pm at the "
-                                       "time of discovery."]
-
-        rm_text = ' '.join(nonalpha_token_rm_sentences)
-        pack = self.iu_xray_pl.process(document)
-        for idx, sentences in enumerate(pack.get(Sentence)):
-            self.assertEqual(sentences.text, rm_text)
 
 
 class TestBuildPipeline(unittest.TestCase):
@@ -134,12 +44,10 @@ class TestBuildPipeline(unittest.TestCase):
             self.assertIn(filename, ['CXR333_IM-1594-1001.json', 'CXR333_IM-1594-2001.json'])
             with open(osp.join(self.result_dir, filename), 'r') as f:
                 items = list(DataPack.deserialize(f.read()))
-                # print(DataPack.deserialize(f.read()).get('Findings'))
                 key = filename.replace('.json', '')
-                self.assertEqual(items[0].text, self.ground_truth_findings)
-                self.assertEqual(items[1].text, self.ground_truth_impression)
-                self.assertEqual(items[2].img_study_path, key)
-                f.close()
+                self.assertEqual(items[0].img_study_path, key)
+                self.assertEqual(items[1].content, self.ground_truth_findings)
+                self.assertEqual(items[2].content, self.ground_truth_impression)
 
 
 if __name__ == "__main__":
