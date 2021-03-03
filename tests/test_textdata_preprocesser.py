@@ -40,8 +40,11 @@ class TestBuildPipeline(unittest.TestCase):
         for _ in self.iu_xray_pl.process_dataset('tests/test_xml'):
             pass
 
-        for i, filename in enumerate(os.listdir(self.result_dir)):
-            self.assertIn(filename, ['CXR333_IM-1594-1001.json', 'CXR333_IM-1594-2001.json'])
+        for filename in os.listdir(self.result_dir):
+            self.assertIn(
+                filename,
+                ['CXR333_IM-1594-1001.json', 'CXR333_IM-1594-2001.json']
+            )
             with open(osp.join(self.result_dir, filename), 'r') as f:
                 items = list(DataPack.deserialize(f.read()))
                 key = filename.replace('.json', '')
