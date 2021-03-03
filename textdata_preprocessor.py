@@ -73,9 +73,6 @@ class IUXrayReportReader(PackReader):
 
                     text = ' '.join(text).lower()
                     extracted[label] = text
-                else:
-                    print(file_path)
-                    exit()
 
         for node in list(root):
             # One image report may consist of more that one
