@@ -73,7 +73,7 @@ class IUXrayReportReader(PackReader):
                             or w == '.']
 
                     text = ' '.join(text).lower()
-                    extracted[label] = text
+                    extracted[label] = text  # type: ignore
 
                     # Add words to the word counter
                     counter.update(
@@ -99,7 +99,7 @@ class IUXrayReportReader(PackReader):
                 # FilePath
                 filepath = FilePath(pack)
 
-                pack_name_string = file_name.replace('.jpg', '')
+                pack_name_string = file_name.replace('.jpg', '') # type: ignore
                 pack_name_list = pack_name_string.split('/')
                 pack.pack_name = '_'.join(pack_name_list[-1:])
                 filepath.img_study_path = '/'.join(pack_name_list[-1:])
