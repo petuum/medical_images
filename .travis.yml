@@ -16,11 +16,12 @@ install:
   - pip install --progress-bar off -r requirements.txt
   - pip install --progress-bar off torch==$TORCH_VER
   - pip install --progress-bar off .[extras]
-  - git clone https://github.com/asyml/forte.git
-  - cd forte
-  - pip install --progress-bar off .
-  - cd ..
-  - rm -rf forte
+  # - git clone https://github.com/asyml/forte.git
+  # - cd forte
+  # - pip install --progress-bar off .
+  # - cd ..
+  # - rm -rf forte
+  - pip install --progress-bar off forte
   - pip install pylint==2.6.0 flake8==3.8.2
   - pip install mypy==0.790
   - pip install pytest==5.1.3
