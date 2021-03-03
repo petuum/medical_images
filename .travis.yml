@@ -13,8 +13,7 @@ install:
   # Installing pip from master source due to https://github.com/pypa/pip/issues/9215
   - pip install --progress-bar off pip==21.0.1
   #- pip install --upgrade pip
-  - pip install --progress-bar off texar-pytorch >= 0.1.1
-  - pip install --progress-bar off nltk >= 3.5
+  - pip install --progress-bar off -r requirements.txt
   - pip install --progress-bar off torch==$TORCH_VER
   - pip install --progress-bar off .[extras]
   # - git clone https://github.com/asyml/forte.git
