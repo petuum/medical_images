@@ -17,8 +17,8 @@
 import os
 import os.path as osp
 import unittest
-from textdata_preprocessor import build_pipeline
 from forte.data.data_pack import DataPack
+from textdata_preprocessor import build_pipeline
 
 
 class TestBuildPipeline(unittest.TestCase):
