@@ -59,6 +59,7 @@ class IUXrayReportReader(PackReader):
         tree = ET.parse(file_path)
         root = tree.getroot()
 
+        counter = self.resources.get('counter')
         extracted = {'FINDINGS': None, 'IMPRESSION': None}
         to_find = 'MedlineCitation/Article/Abstract'
         for abs_text in root.find(to_find): # type: ignore
@@ -73,6 +74,10 @@ class IUXrayReportReader(PackReader):
 
                     text = ' '.join(text).lower()
                     extracted[label] = text
+
+                    # Add words to the word counter
+                    counter.update(
+                        text.replace(',', '').replace('.', '').split(' '))
 
         for node in list(root):
             # One image report may consist of more that one
