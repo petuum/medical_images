@@ -16,6 +16,7 @@
 
 import os
 import os.path as osp
+from collections import Counter
 import unittest
 from forte.data.data_pack import DataPack
 from textdata_preprocessor import build_pipeline
@@ -27,7 +28,8 @@ class TestBuildPipeline(unittest.TestCase):
     """
     def setUp(self):
         self.result_dir = 'tests/test_xml/generated_xml'
-        self.iu_xray_pl = build_pipeline(self.result_dir)
+        self.iu_xray_pl = build_pipeline(
+            self.result_dir, Counter(), Counter())
 
         self.ground_truth_findings = ''.join([
             'the lungs and pleural spaces show no acute abnormality. '
@@ -35,6 +37,7 @@ class TestBuildPipeline(unittest.TestCase):
             'vascularity within normal limits.'
         ])
         self.ground_truth_impression = 'no acute pulmonary abnormality.'
+        self.ground_truth_tags = ["lung", "hyperdistention", "mild"]
 
     def test_pipeline(self):
         for _ in self.iu_xray_pl.process_dataset('tests/test_xml'):
@@ -51,6 +54,7 @@ class TestBuildPipeline(unittest.TestCase):
                 self.assertEqual(items[0].img_study_path, key)
                 self.assertEqual(items[1].content, self.ground_truth_findings)
                 self.assertEqual(items[2].content, self.ground_truth_impression)
+                self.assertEqual(items[3].content, self.ground_truth_tags)
 
 
 if __name__ == "__main__":

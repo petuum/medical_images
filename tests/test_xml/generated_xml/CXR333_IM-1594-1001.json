@@ -6,7 +6,8 @@
         "py/set": [
           0,
           1,
-          2
+          2,
+          3
         ]
       }
     },
@@ -17,7 +18,7 @@
       "py/object": "forte.data.data_pack.Meta",
       "py/state": {
         "pack_name": "CXR333_IM-1594-1001",
-        "_pack_id": 333135649790752145545998531953964090374,
+        "_pack_id": 322379740717022928448960378185243190846,
         "language": "eng",
         "span_unit": "character"
       }
@@ -28,7 +29,7 @@
       {
         "py/object": "iu_xray.onto.FilePath",
         "py/state": {
-          "_tid": 2,
+          "_tid": 3,
           "img_study_path": "CXR333_IM-1594-1001"
         }
       },
@@ -45,13 +46,24 @@
           "_tid": 1,
           "content": "no acute pulmonary abnormality."
         }
+      },
+      {
+        "py/object": "iu_xray.onto.Tags",
+        "py/state": {
+          "_tid": 2,
+          "content": [
+            "lung",
+            "hyperdistention",
+            "mild"
+          ]
+        }
       }
     ],
     "_DataPack__replace_back_operations": [],
     "_DataPack__processed_original_spans": [],
     "_DataPack__orig_text_len": 0,
     "serialization": {
-      "next_id": 3
+      "next_id": 4
     }
   }
 }

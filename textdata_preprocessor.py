@@ -17,7 +17,7 @@ IU Xray medical report preprocessor for the text that does extraction
 of findings and impression part of the text. Tokenize the sentence, lowercase
 all the characters and remove the word contains non-alphabetic characters
 """
-from typing import Iterator, Any
+from typing import Iterator, Any, List
 import pickle
 import os.path as osp
 import argparse
@@ -81,10 +81,10 @@ class IUXrayReportReader(PackReader):
                         text.replace(',', '').replace('.', '').split(' '))
 
         # Process tags
-        tags_list = []
+        tags_list: List[str] = []
         tag_counter = self.resources.get('tag_counter')
-        for mesh_el in root.find('MeSH').findall('major'):
-            tags_list.extend(mesh_el.text.lower().split('/'))
+        for mesh_el in root.find('MeSH').findall('major'): # type: ignore
+            tags_list.extend(mesh_el.text.lower().split('/')) # type: ignore
         tag_counter.update(tags_list)
 
         for node in list(root):
@@ -177,8 +177,8 @@ if __name__ == '__main__':
 
     ARGS = PARSER.parse_args()
 
-    word_counter = Counter()
-    tag_counter = Counter()
+    word_counter: Counter = Counter()
+    tag_counter: Counter = Counter()
     for mode in ['train', 'val', 'test']:
         xml_source = osp.join(ARGS.data_dir, mode)
         dir_to_save_json = osp.join(ARGS.result_dir, mode)
