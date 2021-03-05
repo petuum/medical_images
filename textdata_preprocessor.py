@@ -118,7 +118,11 @@ class IUXrayReportReader(PackReader):
                 yield pack
 
 
-def build_pipeline(result_dir: str, word_counter: Counter, tag_counter: Counter):
+def build_pipeline(
+    result_dir: str,
+    word_counter: Counter,
+    tag_counter: Counter
+):
     r"""Build the pipeline to parse IU Xray report with tokenizer, lowercase and
     non-alpha removal to generate forte json file with the same name with
     preprocessed content and information of impression, findings and path to the
