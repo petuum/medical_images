@@ -18,6 +18,7 @@ of findings and impression part of the text. Tokenize the sentence, lowercase
 all the characters and remove the word contains non-alphabetic characters
 """
 from typing import Iterator, Any
+import pickle
 import os.path as osp
 import argparse
 import xml.etree.ElementTree as ET
@@ -32,7 +33,7 @@ from forte.data.caster import MultiPackBoxer
 from forte.data.selector import NameMatchSelector
 from forte.data.data_utils_io import dataset_path_iterator
 
-from iu_xray.onto import Impression, Findings, FilePath
+from iu_xray.onto import Impression, Findings, Tags, FilePath
 
 
 class IUXrayReportReader(PackReader):
@@ -59,7 +60,7 @@ class IUXrayReportReader(PackReader):
         tree = ET.parse(file_path)
         root = tree.getroot()
 
-        counter = self.resources.get('counter')
+        word_counter = self.resources.get('word_counter')
         extracted = {'FINDINGS': None, 'IMPRESSION': None}
         to_find = 'MedlineCitation/Article/Abstract'
         for abs_text in root.find(to_find): # type: ignore
@@ -76,8 +77,15 @@ class IUXrayReportReader(PackReader):
                     extracted[label] = text  # type: ignore
 
                     # Add words to the word counter
-                    counter.update(
+                    word_counter.update(
                         text.replace(',', '').replace('.', '').split(' '))
+
+        # Process tags
+        tags_list = []
+        tag_counter = self.resources.get('tag_counter')
+        for mesh_el in root.find('MeSH').findall('major'):
+            tags_list.extend(mesh_el.text.lower().split('/'))
+        tag_counter.update(tags_list)
 
         for node in list(root):
             # One image report may consist of more that one
@@ -96,6 +104,9 @@ class IUXrayReportReader(PackReader):
                 # Impression
                 impression = Impression(pack)
                 impression.content = extracted['IMPRESSION']
+                # Tags
+                tags = Tags(pack)
+                tags.content = tags_list
                 # FilePath
                 filepath = FilePath(pack)
 
@@ -106,7 +117,8 @@ class IUXrayReportReader(PackReader):
 
                 yield pack
 
-def build_pipeline(result_dir: str,):
+
+def build_pipeline(result_dir: str, word_counter: Counter, tag_counter: Counter):
     r"""Build the pipeline to parse IU Xray report with tokenizer, lowercase and
     non-alpha removal to generate forte json file with the same name with
     preprocessed content and information of impression, findings and path to the
@@ -118,7 +130,8 @@ def build_pipeline(result_dir: str,):
     """
 
     pipeline = Pipeline[MultiPack]()
-    pipeline.resource.update(counter=Counter())
+    pipeline.resource.update(word_counter=word_counter)
+    pipeline.resource.update(tag_counter=tag_counter)
     pipeline.set_reader(IUXrayReportReader())
     pipeline.add(MultiPackBoxer())
     pipeline.add(PackNameJsonPackWriter(),
@@ -146,21 +159,37 @@ def bulid_vocab(counter, save_vocab_dir: str):
 if __name__ == '__main__':
     PARSER = argparse.ArgumentParser()
     PARSER.add_argument("--data-dir", type=str,
-                        default="/data/jiachen.li/iu_xray/ecgen-radiology/",
+                        default="/home/jiachen.li/data/ecgen-radiology-split/",
                         help="Data directory to read the xml files from")
     PARSER.add_argument("--result-dir", type=str,
-                        default="/home/jiachen.li/text_root/",
+                        default="/home/jiachen.li/text_root_split/",
                         help="Data directory to save the forte json files to")
     PARSER.add_argument("--save-vocab-dir", type=str,
-                        default="./texar_vocab.txt",
-                        help="Directory to save the vocabulary (.txt)")
+                        default="./texar_vocab.pkl",
+                        help="Directory to save the vocabulary (.pkl)")
+    PARSER.add_argument("--save-tags-dir", type=str,
+                        default="./tags.pkl",
+                        help="Directory to save the list of all tags (.txt)")
 
     ARGS = PARSER.parse_args()
 
-    pl = build_pipeline(ARGS.result_dir)
-    for idx, _ in enumerate(pl.process_dataset(ARGS.data_dir)):
-        if (idx + 1) % 100 == 0:
-            print("Processed " + str(idx + 1) + "packs")
+    word_counter = Counter()
+    tag_counter = Counter()
+    for mode in ['train', 'val', 'test']:
+        xml_source = osp.join(ARGS.data_dir, mode)
+        dir_to_save_json = osp.join(ARGS.result_dir, mode)
+        pl = build_pipeline(dir_to_save_json, word_counter, tag_counter)
 
-    word_counter = pl.resource.get('counter')
+        for idx, _ in enumerate(pl.process_dataset(xml_source)):
+            if (idx + 1) % 100 == 0:
+                print(f"{mode}: Processed {idx + 1} packs")
+
+    # Save the vocabulary as a txt file
     bulid_vocab(word_counter, ARGS.save_vocab_dir)
+
+    # Save the tag set as a list
+    tag_list = [tag for tag, cnt in tag_counter.most_common() if tag != '']
+    tag_list = tag_list[:80]
+    for i, (tag, cnt) in enumerate(tag_counter.most_common()):
+        print(i, tag, cnt)
+    pickle.dump(tag_list, open(ARGS.save_tags_dir, 'wb'))

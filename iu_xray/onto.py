@@ -10,11 +10,13 @@ Automatically generated ontology iu_xray_ontology. Do not change manually.
 from dataclasses import dataclass
 from forte.data.data_pack import DataPack
 from forte.data.ontology.top import Generics
+from typing import List
 from typing import Optional
 
 __all__ = [
     "Findings",
     "Impression",
+    "Tags",
     "FilePath",
 ]
 
@@ -50,9 +52,24 @@ class Impression(Generics):
 
 
 @dataclass
+class Tags(Generics):
+    """
+    A Generics class Tags, used to refer to tags part of the report
+    Attributes:
+        content (List[str])
+    """
+
+    content: List[str]
+
+    def __init__(self, pack: DataPack):
+        super().__init__(pack)
+        self.content: List[str] = []
+
+
+@dataclass
 class FilePath(Generics):
     """
-    A class FilePath, used to refer to filepath of the report
+    A Generics class FilePath, used to refer to filepath of the report
     Attributes:
         img_study_path (Optional[str])
     """

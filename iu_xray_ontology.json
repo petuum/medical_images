@@ -28,6 +28,18 @@
       ]
     },
     {
+      "entry_name": "iu_xray.onto.Tags",
+      "parent_entry": "forte.data.ontology.top.Generics",
+      "description": "A Generics class Tags, used to refer to tags part of the report",
+      "attributes": [
+        {
+          "name": "content",
+          "type": "List",
+          "item_type": "str"
+        }
+      ]
+    },
+    {
       "entry_name": "iu_xray.onto.FilePath",
       "parent_entry": "forte.data.ontology.top.Generics",
       "description": "A Generics class FilePath, used to refer to filepath of the report",
