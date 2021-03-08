@@ -163,16 +163,16 @@ def bulid_vocab(counter, save_vocab_dir: str):
 if __name__ == '__main__':
     PARSER = argparse.ArgumentParser()
     PARSER.add_argument("--data-dir", type=str,
-                        default="/home/jiachen.li/data/ecgen-radiology-split/",
+                        default="data/ecgen-radiology-split/",
                         help="Data directory to read the xml files from")
     PARSER.add_argument("--result-dir", type=str,
-                        default="/home/jiachen.li/text_root_split/",
+                        default="text_root_split/",
                         help="Data directory to save the forte json files to")
     PARSER.add_argument("--save-vocab-dir", type=str,
-                        default="./texar_vocab.pkl",
+                        default="texar_vocab.pkl",
                         help="Directory to save the vocabulary (.pkl)")
     PARSER.add_argument("--save-tags-dir", type=str,
-                        default="./tags.pkl",
+                        default="tags.pkl",
                         help="Directory to save the list of all tags (.txt)")
 
     ARGS = PARSER.parse_args()
@@ -194,6 +194,5 @@ if __name__ == '__main__':
     # Save the tag set as a list
     tag_list = [tag for tag, cnt in tag_counter.most_common() if tag != '']
     tag_list = tag_list[:80]
-    for i, (tag, cnt) in enumerate(tag_counter.most_common()):
-        print(i, tag, cnt)
+
     pickle.dump(tag_list, open(ARGS.save_tags_dir, 'wb'))
