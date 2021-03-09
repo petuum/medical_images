@@ -7,10 +7,8 @@ import argparse
 if __name__ == '__main__':
     PARSER = argparse.ArgumentParser()
     PARSER.add_argument("--data-dir", type=str,
-                        default="/data/jiachen.li/iu_xray/ecgen-radiology/",
                         help="Data directory to read the xml files from")
     PARSER.add_argument("--target-folder", type=str,
-                        default="/home/jiachen.li/data/ecgen-radiology-split/",
                         help="Data directory to save xml files that split into"
                         "tran, val and test")
 
