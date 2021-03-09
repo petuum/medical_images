@@ -1,0 +1,69 @@
+{
+  "py/object": "forte.data.data_pack.DataPack",
+  "py/state": {
+    "_creation_records": {
+      "textdata_preprocessor.IUXrayReportReader": {
+        "py/set": [
+          0,
+          1,
+          2,
+          3
+        ]
+      }
+    },
+    "_field_records": {},
+    "links": [],
+    "groups": [],
+    "_meta": {
+      "py/object": "forte.data.data_pack.Meta",
+      "py/state": {
+        "pack_name": "CXR333_IM-1594-2001",
+        "_pack_id": 103636316406971753304054477623968461867,
+        "language": "eng",
+        "span_unit": "character"
+      }
+    },
+    "_text": "",
+    "annotations": [],
+    "generics": [
+      {
+        "py/object": "iu_xray.onto.FilePath",
+        "py/state": {
+          "_tid": 3,
+          "img_study_path": "CXR333_IM-1594-2001"
+        }
+      },
+      {
+        "py/object": "iu_xray.onto.Findings",
+        "py/state": {
+          "_tid": 0,
+          "content": "the lungs and pleural spaces show no acute abnormality. lungs are mildly hyperexpanded. heart size and pulmonary vascularity within normal limits."
+        }
+      },
+      {
+        "py/object": "iu_xray.onto.Impression",
+        "py/state": {
+          "_tid": 1,
+          "content": "no acute pulmonary abnormality."
+        }
+      },
+      {
+        "py/object": "iu_xray.onto.Tags",
+        "py/state": {
+          "_tid": 2,
+          "content": [
+            "lung",
+            "hyperdistention",
+            "mild"
+          ]
+        }
+      }
+    ],
+    "_DataPack__replace_back_operations": [],
+    "_DataPack__processed_original_spans": [],
+    "_DataPack__orig_text_len": 0,
+    "serialization": {
+      "next_id": 4
+    }
+  }
+}
