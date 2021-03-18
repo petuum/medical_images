@@ -241,7 +241,7 @@ class IU_XRay_Dataset(DatasetBase):
     def collate(self, examples):
         r"""Collate the examples. Please refer details to the
         docstring of `collate_fn`
-        
+
         Returns (tx.torch.data.Batch): A batch of data samples
         """
         img_tensor, label, token_tensor, stop_prob = collate_fn(examples)
