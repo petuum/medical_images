@@ -1,8 +1,3 @@
-# Note: Here we freeze the feature extractor, and only tune the MLC.
-# We used the default learning rate of Adam to train the MLC.
-
-# https://arxiv.org/pdf/2004.12274.pdf finetunes the feature extractor
-# on the ChestX-ray 14 dataset.
 from typing import Dict, Any
 import os.path as osp
 import torch
@@ -32,9 +27,8 @@ class SimpleFusionEncoder(ModuleBase):
         self._load_from_ckpt()
         self.out_features = self.cnn.classifier.in_features
 
-    def _load_from_ckpt(self, ckpt='./model.pth.tar'):
-        # Only support the specific chekpoint
-        assert ckpt == './model.pth.tar'
+    def _load_from_ckpt(self):
+        ckpt = './model.pth.tar'
         if osp.exists(ckpt):
             pretrained_weight = torch.load(ckpt)['state_dict']
             new_state_dict = {}
@@ -49,17 +43,20 @@ class SimpleFusionEncoder(ModuleBase):
                 "classifier.weight",
                 "classifier.bias"
             }, set(msg.missing_keys)
+        else:
+            Warning("No pretrained model is loaded!")
 
     def forward(self, images):
         r"""
         Extract visual features from the input images
 
         Args:
-            * images (torch.Tensor): dimension
-            [batch size, channels, height, width]
+            images (torch.Tensor): dimension
+                [batch size, channels, height, width]
+
         Returns:
-            * res (torch.Tensor): dimension
-            [batch size, out_features, 49 = 7 * 7]
+            res (torch.Tensor): dimension
+                [batch size, out_features, 49 = 7 * 7]
         """
         batch_size = images.shape[0]
         res = self.cnn.features(images)
@@ -70,6 +67,7 @@ class SimpleFusionEncoder(ModuleBase):
 
 class MLC(ModuleBase):
     r"""Multilabel classifier
+
     Args:
         hparams (dict or HParams, optional): MLC hyperparameters.
             Missing hyperparameters will be set to default values.
@@ -93,9 +91,11 @@ class MLC(ModuleBase):
     def forward(self, visual_feature):
         r"""Generate logits (scores) for all tags given
         the input visual_feature
+
         Args:
             visual_feature (torch.Tensor): dimension
                 [batch size, num_visual_features, visual_dim]
+
         Returns:
             tag_scores (torch.Tensor): scores for all tags.
                 Dimension [batch size, num_tags]
@@ -112,6 +112,7 @@ class MLC(ModuleBase):
     def get_tag_probs(self, visual_feature):
         r"""Generate probability distributions for all tags given
         the input visual_feature
+
         Args:
             visual_feature (torch.Tensor): dimension
                 [batch size, num_visual_features, visual_dim]
@@ -138,6 +139,7 @@ class MLC(ModuleBase):
 
 class MLCTrainer(ModuleBase):
     r""" Trainer for the Multilabel classifier
+
     Args:
         hparams (dict or HParams, optional): MLCTrainer hyperparameters.
             Missing hyperparameters will be set to default values.
@@ -167,6 +169,7 @@ class MLCTrainer(ModuleBase):
     def forward(self, batch):
         r"""Generate logits (scores) for all tags given
         the input visual_feature
+
         Args:
             batch (tx.torch.data.Batch[str, Union[torch.Tensor, int]]):
                 * batch_size: batch size
@@ -175,6 +178,7 @@ class MLCTrainer(ModuleBase):
                 * token_tensor: Dimension
                     [batch size, max_sentence_num + 1, max_word_num]
                 * stop_prob: Dimension [batch size, max_sentence_num + 1]
+
         Returns:
             loss (torch.float): classification loss
             preds (torch.Tensor): indicators of whether a tag

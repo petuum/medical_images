@@ -1,3 +1,17 @@
+
+# Copyright 2021 The Petuum Authors. All Rights Reserved.
+#
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+#      http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
 from abc import ABC
 from typing import Optional, Sequence, TypeVar
 from sklearn.metrics import roc_auc_score
@@ -55,9 +69,9 @@ class _MultiLabelConfusionMatrix(MultiLabelStreamingMetric[Input, Value], ABC):
 
         Keyword Args:
             predicted: One-hot representation of the predicted results.
-            Dimension [batch size, num_label]
-            label_name: One-hot represetnation of the target labels.
-            Dimension [batch size, num_label]
+                Dimension [batch size, num_label]
+            label_name: One-hot representation of the target labels.
+                Dimension [batch size, num_label]
         """
         super().add(predicted, labels)
         predicted = np.array(predicted)
@@ -193,7 +207,8 @@ class MultiLabelF1(
     def value(self) -> float:
         precision = MultiLabelPrecision.value(self)
         recall = MultiLabelRecall.value(self)
-        f1 = self._safe_divide(2 * precision * recall, precision + recall) # type: ignore
+        f1 = self._safe_divide(
+            2 * precision * recall, precision + recall) # type: ignore
         # pylint: enable=protected-access
         return f1
 
@@ -244,5 +259,3 @@ class RocAuc(SimpleMetric[Input, float]):
         except AttributeError:
             score = 0.
         return score
-
-

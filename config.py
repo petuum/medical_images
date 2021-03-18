@@ -1,9 +1,23 @@
-import pickle
-from texar.torch.data import Vocab
-
-
-with open('tags.pkl', 'rb') as f:
-    pathologies = pickle.load(f)
+pathologies = [
+    'lung', 'normal', 'right', 'left', 'mild', 'base', 'bilateral',
+    'thoracic vertebrae', 'opacity', 'degenerative', 'cardiomegaly',
+    'calcinosis', 'pulmonary atelectasis', 'aorta', 'multiple',
+    'hypoinflation', 'calcified granuloma', 'lower lobe', 'tortuous',
+    'upper lobe', 'hilum', 'hyperdistention', 'cicatrix', 'spine',
+    'small', 'interstitial', 'pleural effusion', 'markings',
+    'diaphragm', 'aorta, thoracic', 'prominent', 'apex', 'middle lobe',
+    'lymph nodes', 'airspace disease', 'atherosclerosis', 'density',
+    'catheters, indwelling', 'deformity', 'scoliosis', 'nodule', 'round',
+    'lingula', 'mediastinum', 'ribs', 'granulomatous disease',
+    'surgical instruments', 'implanted medical device', 'patchy',
+    'costophrenic angle', 'scattered', 'no indexing', 'severe', 'enlarged',
+    'chronic', 'fractures, bone', 'bronchovascular', 'elevated',
+    'technical quality of image unsatisfactory ', 'moderate', 'thorax',
+    'blunted', 'pleura', 'streaky', 'posterior', 'pulmonary congestion',
+    'osteophyte', 'infiltrate', 'lumbar vertebrae', 'spondylosis',
+    'emphysema', 'focal', 'cardiac shadow', 'thickening', 'anterior',
+    'large', 'abdomen', 'borderline', 'granuloma', 'flattened'
+]
 
 transforms = [
     ("Resize", {
@@ -28,8 +42,6 @@ text_root_train = "/path/to/text_root_split/train"
 text_root_val = "/path/to/text_root_split/val"
 text_root_test = "/path/to/text_root_split/test"
 visual_weights = "/path/to/visual_weights"
-
-vocab = Vocab(vocab_path)
 
 dataset = {
             "mlc_lr": 1e-5,
@@ -102,10 +114,7 @@ dataset = {
                 },
                 "word_lstm":{
                     "hidden_size": HIDDEN_SIZE,
-                    "vocab_size": vocab.size,
                     "max_decoding_length": 60,
-                    "BOS": vocab.bos_token_id,
-                    "EOS": vocab.eos_token_id,
                 },
                 "lambda_stop": 1.,
                 "lambda_word": 1.,
