@@ -51,6 +51,16 @@ class TestIUXRayDataset(unittest.TestCase):
                                       'lungs are clear <EOS> bony structures '
                                       'are intact <EOS>']
 
+        self.ground_truth_token_tensors = torch.Tensor([
+            [61, 10, 36, 55, 7, 25, 8, 28, 2, 0, 0, 0],
+            [5, 19, 7, 21, 2, 0, 0, 0, 0, 0, 0, 0],
+            [58, 52, 7, 73, 2, 0, 0, 0, 0, 0, 0, 0],
+            [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+            [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+            [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+            [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+            [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+        ]).to(torch.long)
         self.loader = DataIterator(dataset)
 
     def test_dataload(self):
@@ -67,9 +77,11 @@ class TestIUXRayDataset(unittest.TestCase):
         # Image shape
         self.assertEqual(
             img_tensor.size(),
-            torch.Size([4, 3, 224, 224]))
+            torch.Size([self.batch_size, 3, 224, 224]))
         # Label shape
-        self.assertEqual(label.size(), torch.Size([4, self.num_label]))
+        self.assertEqual(
+            label.size(),
+            torch.Size([self.batch_size, self.num_label]))
 
         # The second dimension of token_tensor and stop_prob
         # should be equal (max_sentence_num + 1)
@@ -86,7 +98,7 @@ class TestIUXRayDataset(unittest.TestCase):
         # using the second sample in the batch
         paragrah = []
         for j in range(token_tensor.shape[1] - 1):
-            sen = token_tensor[0, j].long()
+            sen = self.ground_truth_token_tensors[j].long()
             # Get the effective length of the sentence
             mask = sen != self.vocab.pad_token_id
             len_sen = mask.to(torch.long).sum()
