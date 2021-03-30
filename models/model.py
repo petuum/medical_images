@@ -177,12 +177,12 @@ class MedicalReportGenerator(ModuleBase):
 
         return model
 
-    def attn_loss(self, visual_ailgns, semantic_aligns):
+    def attn_loss(self, visual_aligns, semantic_aligns):
         r"""Attention loss function. Weigh it in the
         main loop as per lambda
 
         Args:
-            visual_ailgns (torch.Tensor): Dimension
+            visual_aligns (torch.Tensor): Dimension
                 [batch_size, num_visual_features, num_sentence_lstm_step]
             semantic_aligns (torch.Tensor): Dimension
                 [batch_size, num_semantic_features, num_sentence_lstm_step]
@@ -192,7 +192,7 @@ class MedicalReportGenerator(ModuleBase):
         """
 
         visual_attn_loss = torch.sum(
-            ((1 - torch.sum(visual_ailgns, -1)) ** 2), -1)
+            ((1 - torch.sum(visual_aligns, -1)) ** 2), -1)
 
         semantic_attn_loss = torch.sum(
             ((1 - torch.sum(semantic_aligns, -1)) ** 2), -1)
@@ -211,7 +211,7 @@ class MedicalReportGenerator(ModuleBase):
         the teacher words.
 
         We need to create the input as
-        [Topic; Embedding of BOS; Emebedding of Teacher's words]
+        [Topic; Embedding of BOS; Embedding of Teacher's words]
         for the Word LSTM (BasicRNNDecoder). Therefore, we embed the teacher's
         words before passing it to the Word LSTM, and we set the token_embedder
         of it as Identity function.
@@ -231,7 +231,7 @@ class MedicalReportGenerator(ModuleBase):
             word_loss (torch.float): word prediction loss,
             attention_loss (torch.float): regularization loss,
             topic_var (torch.float): averaged variance of the topics across
-                differnt sample in the current batch
+                different sample in the current batch
             bleu (1- 4) (torch.float): results of the BLEU metrics
         """
         # Unpack the data batch
@@ -252,7 +252,6 @@ class MedicalReportGenerator(ModuleBase):
         tag_probs = self.mlc.get_tag_probs(visual_feature)
         # As per the wingspan project, transpose the visual feature
         visual_feature = visual_feature.transpose(1, 2).contiguous()
-        # active_tags = tag_probs > 0.5
 
         # Generate semantic features from predicted tag probabilities
         semantic_feature = self.tag_generator(tag_probs)
@@ -313,30 +312,24 @@ class MedicalReportGenerator(ModuleBase):
                         + self.lambda_word * word_losses \
                         + self.lambda_attn * attention_losses
 
-        pred_paragrah = []
+        pred_paragraph = []
         for j in range(batch_size):
-            paragrah = []
+            paragraph = []
             for i in range(token_tensor.shape[1] - 1):
                 sen = pred_words[i][0][j]
                 len_sen = pred_words[i][1][j]
                 sen = sen[1:len_sen + 1].cpu().tolist()
                 if len(sen) > 0:
                     sen_tokens = self.vocab.map_ids_to_tokens_py(sen)
-                    paragrah.append(' '.join(sen_tokens))
+                    paragraph.append(' '.join(sen_tokens))
 
-            # print(' '.join(paragrah))
-            paragrah = ' '.join(strip_special_tokens(paragrah))
-            pred_paragrah.append(paragrah)
+            # print(' '.join(paragraph))
+            paragraph = ' '.join(strip_special_tokens(paragraph))
+            pred_paragraph.append(paragraph)
 
-            # tag = active_tags[j]
-            # indices = torch.nonzero(tag, as_tuple=True)
-            # print(j)
-            # print([self.pathologies[id] for id in indices[0]])
-            # print(paragrah)
-
-        target_paragrah = []
+        target_paragraph = []
         for i in range(batch_size):
-            paragrah = []
+            paragraph = []
             for j in range(token_tensor.shape[1] - 1):
                 sen = token_tensor[i, j].long()
                 mask = sen != self.vocab.pad_token_id
@@ -344,13 +337,13 @@ class MedicalReportGenerator(ModuleBase):
                 if len_sen > 0:
                     sen = sen[:len_sen].cpu().tolist()
                     sen_tokens = self.vocab.map_ids_to_tokens_py(sen)
-                    paragrah.append(' '.join(sen_tokens))
+                    paragraph.append(' '.join(sen_tokens))
 
-            paragrah = ' '.join(strip_special_tokens(paragrah))
-            target_paragrah.append([paragrah])
+            paragraph = ' '.join(strip_special_tokens(paragraph))
+            target_paragraph.append([paragraph])
 
         bleu, bleu_1, bleu_2, bleu_3, bleu_4 = corpus_bleu(
-            target_paragrah, pred_paragrah, return_all=True)
+            target_paragraph, pred_paragraph, return_all=True)
 
         return {
             "loss": train_loss,
@@ -366,6 +359,8 @@ class MedicalReportGenerator(ModuleBase):
         }
 
     def predict(self, batch):
+        r"""Infer the medical reports given the input images.
+        """
         # Unpack the data batch
         batch_size = batch.batch_size
         img_tensor = batch.img_tensor
@@ -388,8 +383,8 @@ class MedicalReportGenerator(ModuleBase):
 
         # Initialization
         sentence_states = self.sentence_lstm.init_hidden(batch_size)
-        # stopped_mask[i] inidiacates whether the topic generation
-        # for the i-th sample is stoped (True: stop, False: contine)
+        # stopped_mask[i] indiacates whether the topic generation
+        # for the i-th sample is stopped (True: stop, False: contine)
         stopped_mask = torch.zeros([batch_size], dtype=torch.bool)
 
         pred_words = []
@@ -414,9 +409,9 @@ class MedicalReportGenerator(ModuleBase):
             pred_words.append(word_output.sample_id)
             sent_num += 1
 
-        pred_paragrah = []
+        pred_paragraph = []
         for j in range(batch_size):
-            paragrah = []
+            paragraph = []
             for i in range(max_sentence_num):
                 sen = pred_words[i][j]
                 mask = sen == self.vocab.eos_token_id
@@ -425,16 +420,16 @@ class MedicalReportGenerator(ModuleBase):
                     if first_eos_index > 0:
                         sen = sen[1:first_eos_index+1].cpu().tolist()
                         sen_tokens = self.vocab.map_ids_to_tokens_py(sen)
-                        paragrah.append(' '.join(sen_tokens))
+                        paragraph.append(' '.join(sen_tokens))
                 except IndexError:
                     continue
 
-            paragrah = ' '.join(strip_special_tokens(paragrah))
-            pred_paragrah.append(paragrah)
+            paragraph = ' '.join(strip_special_tokens(paragraph))
+            pred_paragraph.append(paragraph)
 
-        target_paragrah = []
+        target_paragraph = []
         for i in range(batch_size):
-            paragrah = []
+            paragraph = []
             for j in range(token_tensor.shape[1] - 1):
                 sen = token_tensor[i, j].long()
                 mask = sen != self.vocab.pad_token_id
@@ -442,13 +437,13 @@ class MedicalReportGenerator(ModuleBase):
                 if len_sen > 0:
                     sen = sen[:len_sen].cpu().tolist()
                     sen_tokens = self.vocab.map_ids_to_tokens_py(sen)
-                    paragrah.append(' '.join(sen_tokens))
+                    paragraph.append(' '.join(sen_tokens))
 
-            paragrah = ' '.join(strip_special_tokens(paragrah))
-            target_paragrah.append([paragrah])
+            paragraph = ' '.join(strip_special_tokens(paragraph))
+            target_paragraph.append([paragraph])
 
         bleu, bleu_1, bleu_2, bleu_3, bleu_4 = corpus_bleu(
-            target_paragrah, pred_paragrah, return_all=True)
+            target_paragraph, pred_paragraph, return_all=True)
 
         return {
             'bleu': bleu,

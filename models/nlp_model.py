@@ -122,6 +122,7 @@ class CoAttention(ModuleBase):
                 [batch size, num_semantic_features, semantic_dim]
             prev_state Tuple(torch.Tensor):
                 Previous state of sentence_lstm
+
         Returns:
             context (torch.Tensor): Joint context vector,
                 dimension [batch size, visual_dim + semantic_dim]
@@ -320,6 +321,7 @@ class LstmSentence(ModuleBase):
         calculate the regularization loss function.
         Obtain the topic vector according to Equation 5 in the paper.
         Obtain the stop control prediction according to Equation 6 in the paper.
+
         Args:
             visual_feature (torch.Tensor): Visual features of image patches
                 dimension [batch size, num_visual_features, visual_dim]
@@ -448,6 +450,7 @@ class LstmWord(ModuleBase):
     def forward(self, topic, train=True, inp=None, sentence_len=None):
         """
         Generate sentence given the topic from the Sentence LSTM
+
         Args:
             topic (torch.Tensor): topic state from Sentence LSTM
                 Dimension [batch size, hidden_size]
