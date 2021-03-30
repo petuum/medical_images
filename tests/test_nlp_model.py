@@ -37,6 +37,8 @@ class TestNLPModel(unittest.TestCase):
         self.tag_generator = SemanticTagGenerator(
             config['model']['tag_generator'])
 
+        config['model']['vocab_path'] = \
+            "tests/test_iu_xray_data/test_vocab.txt"
         self.word_lstm = LstmWord(
             config['model']['word_lstm'])
 
