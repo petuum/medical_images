@@ -4,10 +4,10 @@
     "_creation_records": {
       "textdata_preprocessor.IUXrayReportReader": {
         "py/set": [
-          0,
-          1,
-          2,
-          3
+          290167948572797743973540277340466588439,
+          37872666678508476400049234049605968854,
+          169686493611565650923903196572450135753,
+          36432022297274768223426755891575553138
         ]
       }
     },
@@ -18,7 +18,7 @@
       "py/object": "forte.data.data_pack.Meta",
       "py/state": {
         "pack_name": "CXR333_IM-1594-2001",
-        "_pack_id": 103636316406971753304054477623968461867,
+        "_pack_id": 265135949869479934794309245788781721687,
         "language": "eng",
         "span_unit": "character"
       }
@@ -29,28 +29,28 @@
       {
         "py/object": "iu_xray.onto.FilePath",
         "py/state": {
-          "_tid": 3,
+          "_tid": 290167948572797743973540277340466588439,
           "img_study_path": "CXR333_IM-1594-2001"
         }
       },
       {
         "py/object": "iu_xray.onto.Findings",
         "py/state": {
-          "_tid": 0,
+          "_tid": 169686493611565650923903196572450135753,
           "content": "the lungs and pleural spaces show no acute abnormality. lungs are mildly hyperexpanded. heart size and pulmonary vascularity within normal limits."
         }
       },
       {
         "py/object": "iu_xray.onto.Impression",
         "py/state": {
-          "_tid": 1,
+          "_tid": 37872666678508476400049234049605968854,
           "content": "no acute pulmonary abnormality."
         }
       },
       {
         "py/object": "iu_xray.onto.Tags",
         "py/state": {
-          "_tid": 2,
+          "_tid": 36432022297274768223426755891575553138,
           "content": [
             "lung",
             "hyperdistention",
@@ -61,9 +61,6 @@
     ],
     "_DataPack__replace_back_operations": [],
     "_DataPack__processed_original_spans": [],
-    "_DataPack__orig_text_len": 0,
-    "serialization": {
-      "next_id": 4
-    }
+    "_DataPack__orig_text_len": 0
   }
 }

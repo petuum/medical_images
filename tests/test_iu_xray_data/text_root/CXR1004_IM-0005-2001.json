@@ -1,0 +1,74 @@
+{
+  "py/object": "forte.data.data_pack.DataPack",
+  "py/state": {
+    "_creation_records": {
+      "__main__.IUXrayReportReader": {
+        "py/set": [
+          0,
+          1,
+          2,
+          3
+        ]
+      }
+    },
+    "_field_records": {},
+    "links": [],
+    "groups": [],
+    "_meta": {
+      "py/object": "forte.data.data_pack.Meta",
+      "py/state": {
+        "pack_name": "CXR1004_IM-0005-2001",
+        "_pack_id": 163670201350645417212361138308187122805,
+        "language": "eng",
+        "span_unit": "character"
+      }
+    },
+    "_text": "",
+    "annotations": [],
+    "generics": [
+      {
+        "py/object": "iu_xray.onto.FilePath",
+        "py/state": {
+          "_tid": 3,
+          "img_study_path": "CXR1004_IM-0005-2001"
+        }
+      },
+      {
+        "py/object": "iu_xray.onto.Findings",
+        "py/state": {
+          "_tid": 0,
+          "content": "the heart pulmonary xxxx and mediastinum are within normal limits. there is no pleural effusion or pneumothorax. there is no focal air space opacity to suggest a pneumonia. the aorta is tortuous and ectatic. there are degenerative changes of the acromioclavicular joints. there degenerative changes of the spine. there is an ivc xxxx identified."
+        }
+      },
+      {
+        "py/object": "iu_xray.onto.Impression",
+        "py/state": {
+          "_tid": 1,
+          "content": "no acute cardiopulmonary disease."
+        }
+      },
+      {
+        "py/object": "iu_xray.onto.Tags",
+        "py/state": {
+          "_tid": 2,
+          "content": [
+            "aorta",
+            "tortuous",
+            "shoulder",
+            "bilateral",
+            "degenerative",
+            "spine",
+            "degenerative",
+            "catheters, indwelling"
+          ]
+        }
+      }
+    ],
+    "_DataPack__replace_back_operations": [],
+    "_DataPack__processed_original_spans": [],
+    "_DataPack__orig_text_len": 0,
+    "serialization": {
+      "next_id": 4
+    }
+  }
+}

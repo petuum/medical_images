@@ -141,3 +141,5 @@ resources/
 result/
 *.pth.tar
 texar_vocab.txt
+
+*_mlc

@@ -23,11 +23,13 @@ setuptools.setup(
 
     install_requires=[
         'torch >= 1.5.0',
+        'torchvision',
         'texar-pytorch >= 0.1.1',
         'typing>=3.7.4;python_version<"3.5"',
         'typing-inspect>=0.6.0',
         'forte',
-        'nltk >= 3.5'
+        'nltk >= 3.5',
+        'sklearn'
     ],
     extras_require={
     },

@@ -25,7 +25,7 @@ import xml.etree.ElementTree as ET
 from collections import Counter
 
 from forte.data.data_pack import DataPack
-from forte.data.readers.base_reader import PackReader
+from forte.data.base_reader import PackReader
 from forte.pipeline import Pipeline
 from forte.data.multi_pack import MultiPack
 from forte.processors.writers import PackNameJsonPackWriter
