@@ -167,7 +167,8 @@ class TestEvaluationMetrics(unittest.TestCase):
             result = self.mlc_trainer(batch)
             predicted = np.array(result['preds'])
             label = np.array(batch.label)
-            label[0] = np.ones_like(label[0])
+            label[0] = np.ones_like(label[0]) - label[1]
+            label = label.astype(np.int)
 
             roc_auc.add(predicted, label)
             predicted_list.append(predicted)
@@ -176,8 +177,7 @@ class TestEvaluationMetrics(unittest.TestCase):
         label = np.concatenate(label_list, axis=0)
         predicted = np.concatenate(predicted_list, axis=0)
 
-        simple_roc_auc = roc_auc_score(
-            label.astype(np.int), predicted)
+        simple_roc_auc = roc_auc_score(label, predicted)
 
         self.assertEqual(simple_roc_auc, roc_auc.value())
 
