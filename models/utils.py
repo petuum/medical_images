@@ -56,7 +56,11 @@ class InferenceHelper(GreedyEmbeddingHelper):
             inputs = inputs.transpose(0, 1)  # make inputs time major
         self._inputs = inputs
         finished = torch.zeros(self._start_tokens.shape[0], dtype=torch.bool)
-        return (finished.cuda(), self._inputs[0])
+
+        cuda_available = torch.cuda.is_available()
+        finished = finished.cuda() if cuda_available else finished.cpu()
+
+        return (finished, self._inputs[0])
 
     def next_inputs(self, embedding_fn,
                     time: int, outputs: torch.Tensor,
@@ -78,4 +82,7 @@ class InferenceHelper(GreedyEmbeddingHelper):
             embeddings = self.token_embedder(sample_ids)
             next_inputs = (embeddings if not all_finished else self._inputs[1])
 
-        return (finished.cuda(), next_inputs)
+        cuda_available = torch.cuda.is_available()
+        finished = finished.cuda() if cuda_available else finished.cpu()
+
+        return (finished, next_inputs)
