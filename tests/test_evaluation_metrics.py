@@ -20,7 +20,7 @@ import numpy as np
 from texar.torch.data.data.data_iterators import DataIterator
 from sklearn.metrics import roc_auc_score
 
-from config import vocab_path, transforms, pathologies
+from config import transforms, pathologies
 from iu_xray_data import IU_XRay_Dataset
 from models.cv_model import MLCTrainer
 from evaluation_metrics import HammingLoss, MultiLabelConfusionMatrix, \
@@ -54,7 +54,7 @@ class TestEvaluationMetrics(unittest.TestCase):
             "datasource":{
                 "img_root": "tests/test_iu_xray_data/iu_xray_images",
                 "text_root": "tests/test_iu_xray_data/text_root",
-                "vocab_path": vocab_path,
+                "vocab_path": "tests/test_iu_xray_data/texar_vocab.txt",
                 "transforms": transforms,
                 "pathologies": pathologies,
             },
