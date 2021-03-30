@@ -63,7 +63,10 @@ print("done with loading")
 # model
 model = MedicalReportGenerator(hparams_dataset["model"])
 output_dir = Path(args.output_dir)
-optim = torch.optim.Adam(model.parameters(), lr=hparams_dataset["lstm_lr"])
+
+optim = torch.optim.Adam(
+    model.parameters(),
+    lr=hparams_dataset["lstm_lr"]) # type: ignore
 
 # Trainer
 executor = Executor(
@@ -114,6 +117,5 @@ executor = Executor(
     show_live_progress=True
 )
 
-# executor.train()
-executor.load("debug/exp_default_lstm/1617141793.651329.pt")
+executor.train()
 executor.test()
