@@ -27,8 +27,8 @@ install:
   - pip install pytest==5.1.3
   - pip install coverage codecov
   - pip install elasticsearch
-  - pip install faiss-cpu --no-cache
   - pip install sklearn
+  - pip install faiss-cpu --no-cache
 script:
   - pylint petuum_med/
   - flake8 petuum_med/

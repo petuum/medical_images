@@ -21,19 +21,19 @@ parser.add_argument(
     '--save_dir',
     type=str,
     help='Place to save training results',
-    default='exp_default_mlc/'
+    default='debug/exp_default_mlc/'
 )
 parser.add_argument(
     '--output_dir',
     type=str,
     help='Place to save logs results',
-    default='output_default_mlc/'
+    default='debug/output_default_mlc/'
 )
 parser.add_argument(
     '--tbx_dir',
     type=str,
     help='Place to save tensorboard data',
-    default='tbx_folder_mlc/'
+    default='debug/tbx_folder_mlc/'
 )
 parser.add_argument(
     '--grad_clip',
@@ -99,8 +99,8 @@ executor = Executor(
         HammingLoss[float](
             num_label=num_label, pred_name="preds", label_name="label"),
         RocAuc(pred_name="probs", label_name="label"),
-        MultiLabelConfusionMatrix(
-            num_label=num_label, pred_name="preds", label_name="label"),
+        # MultiLabelConfusionMatrix(
+        #     num_label=num_label, pred_name="preds", label_name="label"),
         MultiLabelPrecision(
             num_label=num_label, pred_name="preds", label_name="label"),
         MultiLabelRecall(
