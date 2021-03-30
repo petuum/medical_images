@@ -54,7 +54,7 @@ class TestEvaluationMetrics(unittest.TestCase):
             "datasource":{
                 "img_root": "tests/test_iu_xray_data/iu_xray_images",
                 "text_root": "tests/test_iu_xray_data/text_root",
-                "vocab_path": "tests/test_iu_xray_data/texar_vocab.txt",
+                "vocab_path": "tests/test_iu_xray_data/test_vocab.txt",
                 "transforms": transforms,
                 "pathologies": pathologies,
             },
