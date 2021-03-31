@@ -41,7 +41,7 @@ img_root = "/path/to/iu_xray_images"
 text_root_train = "/path/to/text_root_split/train"
 text_root_val = "/path/to/text_root_split/val"
 text_root_test = "/path/to/text_root_split/test"
-visual_weights = "/path/to/visual_weights"
+visual_weights = None # or "/path/to/visual_weights"
 
 dataset = {
             "mlc_lr": 1e-5,
