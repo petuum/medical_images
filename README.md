@@ -39,6 +39,6 @@ python train_lstm.py
 The results are obtained by using the default hyper-parameters listed in `config.py` without pretraining the MLC.
 
 | Mode | BLEU-1 | BLEU-2 | BLEU-3 | BLEU-4 |
-| --- | --- | --- | --- | --- | --- | --- | --- |
+| --- | --- | --- | --- | --- |
 | Reproduce | 0.554 | 0.231 | 0.136 | 0.067 |
 | Paper | 0.517 | 0.386 | 0.306 | 0.247 |
